@@ -4,11 +4,15 @@ public class LoanCalcService {
     /**
      * TODO Loan calculation.
      */
-    public void calculateLoan(LoanRequest request) {
-        if (request.getMonths() > 8 || request.getAmount() > 1200) {
-            request.setResponseType(LoanResponse.ResponseType.DENIED);
-        } else {
-            request.setResponseType(LoanResponse.ResponseType.APPROVED);
-        }
+    private LoanResponse response;
+    private LoanRequest request;
+
+    public LoanResponse createRequest(LoanRequest request) {
+        this.request = request;
+        LoanCalcRepository calcRepository = new LoanCalcRepository();
+        int requestId = calcRepository.save(request);
+        this.response = new LoanResponse(requestId,
+                                         request);
+        return response;
     }
 }
