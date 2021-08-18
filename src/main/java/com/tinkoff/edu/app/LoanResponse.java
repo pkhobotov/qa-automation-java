@@ -1,15 +1,17 @@
 package com.tinkoff.edu.app;
 
 public class LoanResponse {
-    public ResponseType createResponse(LoanRequest loanRequest) {
-        if (loanRequest.getMonths() > 8 || loanRequest.getAmount() > 1200) {
-            return ResponseType.DENIED;
-        } else {
-            return ResponseType.APPROVED;
-        }
+    public String toString() {
+        return this.type + " ";
     }
 
-    private enum ResponseType {
+    private final ResponseType type;
+
+    public LoanResponse(ResponseType type) {
+        this.type = type;
+    }
+
+    public enum ResponseType {
         APPROVED, DENIED
     }
 }

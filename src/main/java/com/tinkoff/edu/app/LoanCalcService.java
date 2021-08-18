@@ -3,11 +3,12 @@ package com.tinkoff.edu.app;
 public class LoanCalcService {
     /**
      * TODO Loan calculation.
-     *
-     * @param request
      */
-    public int createRequest(LoanRequest request) {
-        LoanCalcRepository calcRepository = new LoanCalcRepository();
-        return calcRepository.save(request);
+    public void calculateLoan(LoanRequest request) {
+        if (request.getMonths() > 8 || request.getAmount() > 1200) {
+            request.setResponseType(LoanResponse.ResponseType.DENIED);
+        } else {
+            request.setResponseType(LoanResponse.ResponseType.APPROVED);
+        }
     }
 }
