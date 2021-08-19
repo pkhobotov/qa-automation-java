@@ -4,7 +4,7 @@ import com.tinkoff.edu.app.*;
 
 public class LoanCalcTest {
     public static void main(String... args) {
-        LoanRequest request = new LoanRequest(20,
+        LoanRequest request = new LoanRequest(10,
                                               1000,
                                               LoanType.IP);
         LoanCalcController calcController = new LoanCalcController();

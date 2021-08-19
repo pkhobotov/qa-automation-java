@@ -3,20 +3,20 @@ package com.tinkoff.edu.app;
 public class LoanResponse {
     private final int requestId;
     private final LoanRequest request;
-    private ResponseType type;
+    private ResponseType responseType;
 
-    public LoanResponse(int requestId, LoanRequest request) {
+    public LoanResponse(int requestId, LoanRequest request, ResponseType responseType) {
         this.requestId = requestId;
         this.request = request;
-        this.type = LoanCalcService.calculateLoanResponse(request);
+        this.responseType = responseType;
     }
 
-    public ResponseType getType() {
-        return type;
+    public ResponseType getResponseType() {
+        return responseType;
     }
 
-    public void setType(ResponseType type) {
-        this.type = type;
+    public void setResponseType(ResponseType responseType) {
+        this.responseType = responseType;
     }
 
     public int getRequestId() {
@@ -31,6 +31,6 @@ public class LoanResponse {
         return String.format("requestId %s : %s\nResult: %s",
                              this.requestId,
                              this.request,
-                             this.type);
+                             this.responseType);
     }
 }
