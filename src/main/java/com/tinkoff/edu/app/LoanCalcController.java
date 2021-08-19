@@ -4,10 +4,12 @@ public class LoanCalcController {
     /**
      * TODO Validates and logs request.
      */
-    public static int createRequest() {
-        //param validation
-        //log
-        LoanCalcLogger.log();
-        return LoanCalcService.createRequest();
+    public LoanCalcController() {
+    }
+
+    public LoanResponse createRequest(LoanRequest request) {
+        LoanCalcLogger.log("got request");
+        LoanCalcService calcServices = new LoanCalcService();
+        return calcServices.createRequest(request);
     }
 }
