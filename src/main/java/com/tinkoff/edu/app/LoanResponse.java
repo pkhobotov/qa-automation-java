@@ -8,6 +8,7 @@ public class LoanResponse {
     public LoanResponse(int requestId, LoanRequest request) {
         this.requestId = requestId;
         this.request = request;
+        this.type = LoanCalcService.calculateLoanResponse(request);
     }
 
     public ResponseType getType() {
@@ -27,7 +28,7 @@ public class LoanResponse {
     }
 
     public String toString() {
-        return String.format("id %s : %s\nResult: %s",
+        return String.format("requestId %s : %s\nResult: %s",
                              this.requestId,
                              this.request,
                              this.type);
