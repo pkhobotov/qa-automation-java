@@ -1,16 +1,21 @@
 package com.tinkoff.edu.app;
 
-public class LoanCalcService {
+public class LoanCalcService implements LoanCalcServiceInterface {
+    protected LoanCalcRepositoryInterface repo;
+
+    public LoanCalcService(LoanCalcRepositoryInterface repo) {
+        this.repo = repo;
+    }
+
     public LoanResponse createRequest(LoanRequest request) {
-        LoanCalcRepository calcRepository = new LoanCalcRepository();
-        ResponseType responseType = calculateLoanResponse(request);
-        int requestId = calcRepository.save(request);
+        ResponseType responseType = this.calculateLoanResponse(request);
+        int requestId = this.repo.save(request);
         return new LoanResponse(requestId,
                                 request,
                                 responseType);
     }
 
-    private ResponseType calculateLoanResponse(LoanRequest request) {
+    public ResponseType calculateLoanResponse(LoanRequest request) {
         if (request.getAmount() > 1200 || request.getMonths() > 10) {
             return ResponseType.DENIED;
         } else {

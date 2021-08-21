@@ -1,15 +1,14 @@
 package com.tinkoff.edu.app;
 
 public class LoanCalcController {
-    /**
-     * TODO Validates and logs request.
-     */
-    public LoanCalcController() {
+    private final LoanCalcService loanCalcService;
+
+    public LoanCalcController(LoanCalcRepositoryInterface repo) {
+        this.loanCalcService = new IpNotFriendlyCalcService(repo);
     }
 
     public LoanResponse createRequest(LoanRequest request) {
         LoanCalcLogger.log("got request");
-        LoanCalcService calcServices = new LoanCalcService();
-        return calcServices.createRequest(request);
+        return loanCalcService.createRequest(request);
     }
 }

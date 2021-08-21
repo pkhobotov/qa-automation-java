@@ -6,9 +6,9 @@ public class LoanCalcTest {
     public static void main(String... args) {
         LoanRequest request = new LoanRequest(10,
                                               1000,
-                                              LoanType.IP);
-        LoanCalcController calcController = new LoanCalcController();
-        LoanResponse response = calcController.createRequest(request);
+                                              LoanType.OOO);
+        LoanCalcController loanCalcController = new LoanCalcController(new StaticVariableLoanCalcRepository());
+        LoanResponse response = loanCalcController.createRequest(request);
         LoanCalcLogger.log(response);
     }
 }
