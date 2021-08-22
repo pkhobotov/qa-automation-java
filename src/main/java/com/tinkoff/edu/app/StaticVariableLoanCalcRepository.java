@@ -1,6 +1,6 @@
 package com.tinkoff.edu.app;
 
-public class StaticVariableLoanCalcRepository implements LoanCalcRepositoryInterface {
+public class StaticVariableLoanCalcRepository implements LoanCalcRepository {
     private static int requestId;
 
     @Override

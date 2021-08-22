@@ -8,8 +8,8 @@ public class LoanCalcTest {
     public static void main(String... args) {
         LoanRequest request = new LoanRequest(10,
                                               1000,
-                                              LoanType.OOO);
-        LoanCalcControllerInterface loanCalcController = new LoanCalcController(repo);
+                                              LoanType.IP);
+        LoanCalcController loanCalcController = new IpNotFriendlyLoanCalcController(repo);
         LoanResponse response = loanCalcController.createRequest(request);
         LoanCalcLogger.log(response);
     }

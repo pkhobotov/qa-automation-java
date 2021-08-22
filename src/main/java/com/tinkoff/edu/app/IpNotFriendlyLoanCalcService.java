@@ -1,7 +1,7 @@
 package com.tinkoff.edu.app;
 
-public class IpNotFriendlyCalcService extends LoanCalcService {
-    public IpNotFriendlyCalcService(LoanCalcRepositoryInterface repo) {
+public class IpNotFriendlyLoanCalcService extends DefaultLoanCalcService {
+    public IpNotFriendlyLoanCalcService(LoanCalcRepository repo) {
         super(repo);
     }
 
