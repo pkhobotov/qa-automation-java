@@ -3,8 +3,8 @@ package com.tinkoff.edu.app;
 public class DefaultLoanCalcController implements LoanCalcController {
     protected LoanCalcService loanCalcService;
 
-    public DefaultLoanCalcController(LoanCalcRepository repo) {
-        this.loanCalcService = new DefaultLoanCalcService(repo);
+    public DefaultLoanCalcController(LoanCalcService loanCalcService) {
+        this.loanCalcService = loanCalcService;
     }
 
     @Override
