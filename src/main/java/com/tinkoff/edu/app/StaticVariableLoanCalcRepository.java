@@ -1,7 +1,7 @@
 package com.tinkoff.edu.app;
 
 public class StaticVariableLoanCalcRepository implements LoanCalcRepository {
-    public int requestId;
+    private int requestId;
 
     @Override
     public int save(LoanRequest request) {
