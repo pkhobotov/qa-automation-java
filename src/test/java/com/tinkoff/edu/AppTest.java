@@ -1,6 +1,7 @@
 package com.tinkoff.edu;
 
 import com.tinkoff.edu.app.*;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,10 @@ public class AppTest {
                                   1000,
                                   LoanType.IP);
         //endregion
+    }
+    @AfterEach
+    public void printRequest() {
+        LoanCalcLogger.log(response);
     }
 
     @Test
