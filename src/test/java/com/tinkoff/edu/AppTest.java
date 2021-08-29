@@ -50,17 +50,6 @@ public class AppTest {
         //endregion
     }
 
-    @Test
-    @DisplayName("Request denied if requester is IP")
-    public void shouldGetDeniedIdRequestedFromIp() {
-        LoanType requester = LoanType.IP;
-        request = new LoanRequest(10,
-                                  1000,
-                                  requester);
-        LoanResponse response = sut.createRequest(request);
-        assertEquals(response.getResponseType(),
-                     ResponseType.DENIED);
-    }
 
     @Test
     @DisplayName("Throws error on null request")
@@ -88,5 +77,41 @@ public class AppTest {
                                   LoanType.OOO);
         assertThrows(IllegalArgumentException.class,
                      () -> sut.createRequest(request));
+
+    }
+
+    @Test
+    @DisplayName("Request denied if requester is IP")
+    public void shouldGetDeniedIdRequestedFromIp() {
+        LoanType requester = LoanType.IP;
+        request = new LoanRequest(10,
+                                  1000,
+                                  requester);
+        LoanResponse response = sut.createRequest(request);
+        assertEquals(ResponseType.DENIED, response.getResponseType());
+    }
+
+    @Test
+    @DisplayName("Request denied if requested too much money")
+    public void shouldGetDeniedWhenRequestsTooMuchMoney(){
+        request = new LoanRequest(4, 20000, LoanType.PERSON);
+        response = sut.createRequest(request);
+        assertEquals(ResponseType.DENIED, response.getResponseType());
+    }
+
+    @Test
+    @DisplayName("Request denied if requested for too many months")
+    public void shouldGetDeniedWhenRequestsForTooManyMonths(){
+        request = new LoanRequest(16, 8000, LoanType.PERSON);
+        response = sut.createRequest(request);
+        assertEquals(ResponseType.DENIED, response.getResponseType());
+    }
+
+    @Test
+    @DisplayName("Request approved if requested not too much money for not too many months")
+    public void shouldGetApprovedWhenRequestedNotTooMuchForNotTooLong(){
+        request = new LoanRequest(4, 8000, LoanType.OOO);
+        response = sut.createRequest(request);
+        assertEquals(ResponseType.APPROVED, response.getResponseType());
     }
 }
