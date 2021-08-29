@@ -9,8 +9,9 @@ public class DefaultLoanCalcController implements LoanCalcController {
 
     @Override
     public LoanResponse createRequest(LoanRequest request) {
-        if (request == null) throw new IllegalArgumentException();
-        LoanCalcLogger.log("got request");
+        if (request == null || request.getAmount() <= 0 || request.getMonths() <= 0)
+            throw new IllegalArgumentException();
+//        LoanCalcLogger.log("got request");
         return loanCalcService.createRequest(request);
     }
 }

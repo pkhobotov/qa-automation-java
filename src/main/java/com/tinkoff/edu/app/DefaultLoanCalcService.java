@@ -16,7 +16,7 @@ public class DefaultLoanCalcService implements LoanCalcService {
     }
 
     public ResponseType calculateLoanResponse(LoanRequest request) {
-        if (request.getAmount() > 1200 || request.getMonths() > 10) {
+        if (request.getAmount() > 10_000 || request.getMonths() > 12) {
             return ResponseType.DENIED;
         } else {
             return ResponseType.APPROVED;
