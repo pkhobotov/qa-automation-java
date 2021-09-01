@@ -1,11 +1,10 @@
 package com.tinkoff.edu.app;
 
-public class VariableLoanCalcRepository implements LoanCalcRepository {
-    private int requestId;
+import java.util.UUID;
 
+public class VariableLoanCalcRepository implements LoanCalcRepository {
     @Override
-    public int save(LoanRequest request) {
-//        LoanCalcLogger.log("request saved");
-        return ++requestId;
+    public UUID save(LoanRequest request) {
+        return UUID.randomUUID();
     }
 }

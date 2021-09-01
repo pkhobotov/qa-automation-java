@@ -1,11 +1,13 @@
 package com.tinkoff.edu.app;
 
-public class LoanResponse {
-    private final int requestId;
-    private final LoanRequest request;
-    private ResponseType responseType;
+import java.util.UUID;
 
-    public LoanResponse(int requestId, LoanRequest request, ResponseType responseType) {
+public class LoanResponse {
+    private final UUID requestId;
+    private final LoanRequest request;
+    private final ResponseType responseType;
+
+    public LoanResponse(UUID requestId, LoanRequest request, ResponseType responseType) {
         this.requestId = requestId;
         this.request = request;
         this.responseType = responseType;
@@ -15,16 +17,8 @@ public class LoanResponse {
         return responseType;
     }
 
-    public void setResponseType(ResponseType responseType) {
-        this.responseType = responseType;
-    }
-
-    public int getRequestId() {
+    public UUID getRequestId() {
         return requestId;
-    }
-
-    public LoanRequest getRequest() {
-        return request;
     }
 
     public String toString() {
