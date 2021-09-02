@@ -8,7 +8,7 @@ public class DefaultLoanCalcController implements LoanCalcController {
     }
 
     @Override
-    public LoanResponse createRequest(LoanRequest request) {
+    public LoanApplication createRequest(LoanRequest request) {
         if (request == null || request.getAmount() <= 0 || request.getMonths() <= 0)
             throw new IllegalArgumentException();
         return loanCalcService.createRequest(request);

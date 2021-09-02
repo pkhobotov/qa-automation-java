@@ -68,7 +68,7 @@ public class AppTest {
     @BeforeEach
     public void init() {
         //region Fixture | Arrange | Given
-        LoanCalcRepository repo = new ArrayLoanCalcRepository();
+        LoanCalcRepository repo = new StaticArrayLoanCalcRepository();
         LoanCalcService calcService = new IpNotFriendlyLoanCalcService(repo);
         sut = new DefaultLoanCalcController(calcService);
         //endregion
@@ -147,16 +147,17 @@ public class AppTest {
     @ParameterizedTest
     @MethodSource("buildApprovalRequest")
     public void getApproved(LoanRequest request) {
-        LoanResponse response = sut.createRequest(request);
+        LoanApplication response = sut.createRequest(request);
         assertEquals(ResponseType.APPROVED,
-                     response.getResponseType());
+                     response.getResponse());
     }
 
     @ParameterizedTest
     @MethodSource("buildDeniableRequest")
     public void getDenied(LoanRequest request) {
-        LoanResponse response = sut.createRequest(request);
+        LoanApplication response = sut.createRequest(request);
         assertEquals(ResponseType.DENIED,
-                     response.getResponseType());
+                     response.getResponse());
     }
+
 }

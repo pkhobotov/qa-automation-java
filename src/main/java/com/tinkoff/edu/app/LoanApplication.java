@@ -2,19 +2,19 @@ package com.tinkoff.edu.app;
 
 import java.util.UUID;
 
-public class LoanResponse {
+public class LoanApplication {
     private final UUID requestId;
     private final LoanRequest request;
-    private final ResponseType responseType;
+    private final ResponseType response;
 
-    public LoanResponse(UUID requestId, LoanRequest request, ResponseType responseType) {
+    public LoanApplication(UUID requestId, LoanRequest request, ResponseType response) {
         this.requestId = requestId;
         this.request = request;
-        this.responseType = responseType;
+        this.response = response;
     }
 
-    public ResponseType getResponseType() {
-        return responseType;
+    public ResponseType getResponse() {
+        return response;
     }
 
     public UUID getRequestId() {
@@ -25,6 +25,6 @@ public class LoanResponse {
         return String.format("requestId %s : %s\nResult: %s",
                              this.requestId,
                              this.request,
-                             this.responseType);
+                             this.response);
     }
 }

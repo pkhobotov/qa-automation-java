@@ -9,12 +9,12 @@ public class DefaultLoanCalcService implements LoanCalcService {
         this.repo = repo;
     }
 
-    public LoanResponse createRequest(LoanRequest request) {
+    public LoanApplication createRequest(LoanRequest request) {
         ResponseType responseType = this.calculateLoanResponse(request);
         UUID requestId = this.repo.save(request);
-        return new LoanResponse(requestId,
-                                request,
-                                responseType);
+        return new LoanApplication(requestId,
+                                   request,
+                                   responseType);
     }
 
     public ResponseType calculateLoanResponse(LoanRequest request) {
