@@ -1,5 +1,7 @@
 package com.tinkoff.edu.app;
 
+import java.util.UUID;
+
 public class DefaultLoanCalcService implements LoanCalcService {
     protected LoanCalcRepository repo;
 
@@ -7,19 +9,40 @@ public class DefaultLoanCalcService implements LoanCalcService {
         this.repo = repo;
     }
 
-    public LoanResponse createRequest(LoanRequest request) {
+    public LoanApplication createRequest(LoanRequest request) {
         ResponseType responseType = this.calculateLoanResponse(request);
-        int requestId = this.repo.save(request);
-        return new LoanResponse(requestId,
-                                request,
-                                responseType);
+        UUID requestId = this.repo.save(request,
+                                        responseType);
+        return new LoanApplication(requestId,
+                                   request,
+                                   responseType);
     }
 
     public ResponseType calculateLoanResponse(LoanRequest request) {
-        if (request.getAmount() > 1200 || request.getMonths() > 10) {
-            return ResponseType.DENIED;
-        } else {
-            return ResponseType.APPROVED;
+        switch (request.getType()) {
+            case OOO:
+                if (request.getAmount() > 10_000 && request.getMonths() < 12) {
+                    return ResponseType.APPROVED;
+                }
+            case PERSON:
+                if (request.getAmount() <= 10_000 && request.getMonths() <= 12) {
+                    return ResponseType.APPROVED;
+                }
+            default:
+                return ResponseType.DENIED;
         }
+    }
+
+    @Override
+    public ResponseType getApplicationStatus(UUID requestId) {
+        LoanCalcRow row = repo.getRowById(requestId);
+        return row.getStatus();
+    }
+
+    @Override
+    public ResponseType setApplicationStatus(UUID requestId, ResponseType response) {
+        LoanCalcRow row = repo.getRowById(requestId);
+        row.setStatus(response);
+        return row.getStatus();
     }
 }

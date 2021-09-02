@@ -7,11 +7,13 @@ public class LoanRequest {
     private final int months;
     private final int amount;
     private final LoanType type;
+    private final String fio;
 
-    public LoanRequest(int months, int amount, LoanType type) {
+    public LoanRequest(int months, int amount, LoanType type, String fio) {
         this.months = months;
         this.amount = amount;
         this.type = type;
+        this.fio = fio;
     }
 
     public LoanType getType() {

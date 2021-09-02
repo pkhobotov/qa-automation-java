@@ -1,50 +1,152 @@
 package com.tinkoff.edu;
 
 import com.tinkoff.edu.app.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.UUID;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AppTest {
-    private LoanCalcController calcController;
+    private static final String defaultFio = "Петров Гриша Алексеевич";
+    private LoanCalcController sut;
     private LoanRequest request;
+
+    public static Stream <LoanRequest> buildApprovalRequest() {
+        return Stream.of(
+                new LoanRequest(4,
+                                12000,
+                                LoanType.OOO,
+                                defaultFio),
+                new LoanRequest(4,
+                                8000,
+                                LoanType.OOO,
+                                defaultFio)
+        );
+    }
+
+    public static Stream <LoanRequest> buildDeniableRequest() {
+        return Stream.of(
+                new LoanRequest(14,
+                                12000,
+                                LoanType.OOO,
+                                defaultFio),
+                new LoanRequest(16,
+                                8000,
+                                LoanType.PERSON,
+                                defaultFio),
+                new LoanRequest(4,
+                                20000,
+                                LoanType.PERSON,
+                                defaultFio),
+                new LoanRequest(10,
+                                1000,
+                                LoanType.IP,
+                                defaultFio)
+        );
+    }
+
+    private LoanRequest buildDefaultRequest() {
+        return new LoanRequest(2,
+                               8000,
+                               LoanType.OOO,
+                               defaultFio);
+    }
 
     @BeforeEach
     public void init() {
         //region Fixture | Arrange | Given
-        LoanCalcRepository repo = new StaticVariableLoanCalcRepository();
+        LoanCalcRepository repo = new ArrayLoanCalcRepository();
         LoanCalcService calcService = new IpNotFriendlyLoanCalcService(repo);
-        calcController = new DefaultLoanCalcController(calcService);
-        request = new LoanRequest(10,
-                                  1000,
-                                  LoanType.IP);
+        sut = new DefaultLoanCalcController(calcService);
         //endregion
     }
 
     @Test
-    @DisplayName("Should get 1 when first request")
-    public void shouldGet1WhenFirstRequest() {
-        //region Act | When
-        LoanResponse response = calcController.createRequest(request);
-        //endregion
-        //region Assert | Then
-        assertEquals(1,
-                     response.getRequestId());
-        //endregion
+    @DisplayName("Throws error on null request")
+    public void shouldGetErrorWhenApplyNullRequest() {
+        request = null;
+        assertThrows(IllegalArgumentException.class,
+                     () -> sut.createRequest(request));
     }
 
     @Test
-    @DisplayName("Should get +1 incremented after each call")
-    public void shouldGetPlus1AfterEachCall() {
-        //region Act | When
-        int firstRequestId = calcController.createRequest(request).getRequestId();
-        int secondRequestId = calcController.createRequest(request).getRequestId();
-        //endregion
-        //region Assert | Then
-        assertEquals(firstRequestId + 1,
-                     secondRequestId);
-        //endregion
+    @DisplayName("Throws error on negative amount")
+    public void shouldGetErrorWhenApplyZeroOrNegativeAmountRequest() {
+        request = new LoanRequest(2000,
+                                  -2,
+                                  LoanType.OOO,
+                                  defaultFio);
+        assertThrows(IllegalArgumentException.class,
+                     () -> sut.createRequest(request));
+    }
+
+    @Test
+    @DisplayName("Throws error on negative months")
+    public void shouldGetErrorWhenApplyZeroOrNegativeMonthsRequest() {
+        request = new LoanRequest(-3,
+                                  2000,
+                                  LoanType.OOO,
+                                  defaultFio);
+        assertThrows(IllegalArgumentException.class,
+                     () -> sut.createRequest(request));
+    }
+
+    @DisplayName("request should be APPROVED")
+    @ParameterizedTest
+    @MethodSource("buildApprovalRequest")
+    public void getApproved(LoanRequest request) {
+        LoanApplication response = sut.createRequest(request);
+        assertEquals(ResponseType.APPROVED,
+                     response.getResponse());
+    }
+
+    @DisplayName("request should be DENIED")
+    @ParameterizedTest
+    @MethodSource("buildDeniableRequest")
+    public void getDenied(LoanRequest request) {
+        LoanApplication response = sut.createRequest(request);
+        assertEquals(ResponseType.DENIED,
+                     response.getResponse());
+    }
+
+    @Test
+    public void shouldReturnApplicationUUID() {
+        request = buildDefaultRequest();
+        LoanApplication application = sut.createRequest(request);
+        UUID requestId = application.getRequestId();
+        assertEquals(application.getResponse(),
+                     sut.getApplicationStatus(requestId));
+    }
+
+
+
+    @Test
+    public void shouldReturnExceptionWhenNoRequestStored() {
+        assertThrows(NullPointerException.class,
+                     () -> sut.getApplicationStatus(UUID.randomUUID()));
+    }
+
+    @Test
+    public void shouldReturnExceptionWhenNoRequestFound() {
+        request = buildDefaultRequest();
+        sut.createRequest(request);
+        assertThrows(NullPointerException.class,
+                     () -> sut.getApplicationStatus(UUID.randomUUID()));
+    }
+
+    @Test
+    public void shouldSetStatusToDesired() {
+        request = buildDefaultRequest();
+        LoanApplication application = sut.createRequest(request);
+        UUID requestId = application.getRequestId();
+        Assumptions.assumeTrue(sut.getApplicationStatus(requestId).equals(ResponseType.APPROVED));
+        assertEquals(ResponseType.DENIED,
+                     sut.setApplicationStatus(requestId,
+                                              ResponseType.DENIED));
     }
 }

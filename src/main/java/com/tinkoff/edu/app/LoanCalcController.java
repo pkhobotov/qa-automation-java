@@ -1,5 +1,9 @@
 package com.tinkoff.edu.app;
 
+import java.util.UUID;
+
 public interface LoanCalcController {
-    LoanResponse createRequest(LoanRequest request);
+    LoanApplication createRequest(LoanRequest request);
+    ResponseType getApplicationStatus(UUID requestId);
+    ResponseType setApplicationStatus(UUID requestId, ResponseType response);
 }
