@@ -11,7 +11,8 @@ public class DefaultLoanCalcService implements LoanCalcService {
 
     public LoanApplication createRequest(LoanRequest request) {
         ResponseType responseType = this.calculateLoanResponse(request);
-        UUID requestId = this.repo.save(request);
+        UUID requestId = this.repo.save(request,
+                                        responseType);
         return new LoanApplication(requestId,
                                    request,
                                    responseType);
@@ -30,5 +31,18 @@ public class DefaultLoanCalcService implements LoanCalcService {
             default:
                 return ResponseType.DENIED;
         }
+    }
+
+    @Override
+    public ResponseType getApplicationStatus(UUID requestId) {
+        LoanCalcRow row = repo.getRowById(requestId);
+        return row.getStatus();
+    }
+
+    @Override
+    public ResponseType setApplicationStatus(UUID requestId, ResponseType response) {
+        LoanCalcRow row = repo.getRowById(requestId);
+        row.setStatus(response);
+        return row.getStatus();
     }
 }

@@ -68,7 +68,7 @@ public class AppTest {
     @BeforeEach
     public void init() {
         //region Fixture | Arrange | Given
-        LoanCalcRepository repo = new StaticArrayLoanCalcRepository();
+        LoanCalcRepository repo = new ArrayLoanCalcRepository();
         LoanCalcService calcService = new IpNotFriendlyLoanCalcService(repo);
         sut = new DefaultLoanCalcController(calcService);
         //endregion
@@ -82,34 +82,6 @@ public class AppTest {
 //                                  defaultLastName);
 //    }
 
-    //region requestId tests
-    //    @Test
-    //    @DisplayName("Should get 1 when first request")
-    //    public void shouldGet1WhenFirstRequest() {
-    //        //region Act | When
-    //        buildDefaultRequest();
-    //        LoanResponse response = sut.createRequest(request);
-    //        //endregion
-    //        //region Assert | Then
-    //        assertEquals(1,
-    //                     response.getRequestId());
-    //        //endregion
-    //    }
-    //
-    //    @Test
-    //    @DisplayName("Should get +1 incremented after each call")
-    //    public void shouldGetPlus1AfterEachCall() {
-    //        //region Act | When
-    //        buildDefaultRequest();
-    //        UUID firstRequestId = sut.createRequest(request).getRequestId();
-    //        UUID secondRequestId = sut.createRequest(request).getRequestId();
-    //        //endregion
-    //        //region Assert | Then
-    //        assertEquals(firstRequestId + 1,
-    //                     secondRequestId);
-    //        //endregion
-    //    }
-//endregion
     @Test
     @DisplayName("Throws error on null request")
     public void shouldGetErrorWhenApplyNullRequest() {
