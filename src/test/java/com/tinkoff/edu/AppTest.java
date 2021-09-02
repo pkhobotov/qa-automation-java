@@ -1,21 +1,18 @@
 package com.tinkoff.edu;
 
 import com.tinkoff.edu.app.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AppTest {
-    private static final String defaultFirstName = "Гриша";
-    private static final String defaultLastName = "Петров";
-    private static final String defaultMiddleName = "Алексеевич";
+    private static final String defaultFio = "Петров Гриша Алексеевич";
     private LoanCalcController sut;
     private LoanRequest request;
 
@@ -24,15 +21,11 @@ public class AppTest {
                 new LoanRequest(4,
                                 12000,
                                 LoanType.OOO,
-                                defaultFirstName,
-                                defaultMiddleName,
-                                defaultLastName),
+                                defaultFio),
                 new LoanRequest(4,
                                 8000,
                                 LoanType.OOO,
-                                defaultFirstName,
-                                defaultMiddleName,
-                                defaultLastName)
+                                defaultFio)
         );
     }
 
@@ -41,28 +34,27 @@ public class AppTest {
                 new LoanRequest(14,
                                 12000,
                                 LoanType.OOO,
-                                defaultFirstName,
-                                defaultMiddleName,
-                                defaultLastName),
+                                defaultFio),
                 new LoanRequest(16,
                                 8000,
                                 LoanType.PERSON,
-                                defaultFirstName,
-                                defaultMiddleName,
-                                defaultLastName),
+                                defaultFio),
                 new LoanRequest(4,
                                 20000,
                                 LoanType.PERSON,
-                                defaultFirstName,
-                                defaultMiddleName,
-                                defaultLastName),
+                                defaultFio),
                 new LoanRequest(10,
                                 1000,
                                 LoanType.IP,
-                                defaultFirstName,
-                                defaultMiddleName,
-                                defaultLastName)
+                                defaultFio)
         );
+    }
+
+    private LoanRequest buildDefaultRequest() {
+        return new LoanRequest(2,
+                               8000,
+                               LoanType.OOO,
+                               defaultFio);
     }
 
     @BeforeEach
@@ -73,14 +65,6 @@ public class AppTest {
         sut = new DefaultLoanCalcController(calcService);
         //endregion
     }
-//    private void buildDefaultRequest() {
-//        request = new LoanRequest(10,
-//                                  1000,
-//                                  LoanType.IP,
-//                                  defaultFirstName,
-//                                  defaultMiddleName,
-//                                  defaultLastName);
-//    }
 
     @Test
     @DisplayName("Throws error on null request")
@@ -96,9 +80,7 @@ public class AppTest {
         request = new LoanRequest(2000,
                                   -2,
                                   LoanType.OOO,
-                                  defaultFirstName,
-                                  defaultMiddleName,
-                                  defaultLastName);
+                                  defaultFio);
         assertThrows(IllegalArgumentException.class,
                      () -> sut.createRequest(request));
     }
@@ -109,13 +91,12 @@ public class AppTest {
         request = new LoanRequest(-3,
                                   2000,
                                   LoanType.OOO,
-                                  defaultFirstName,
-                                  defaultMiddleName,
-                                  defaultLastName);
+                                  defaultFio);
         assertThrows(IllegalArgumentException.class,
                      () -> sut.createRequest(request));
     }
 
+    @DisplayName("request should be APPROVED")
     @ParameterizedTest
     @MethodSource("buildApprovalRequest")
     public void getApproved(LoanRequest request) {
@@ -124,6 +105,7 @@ public class AppTest {
                      response.getResponse());
     }
 
+    @DisplayName("request should be DENIED")
     @ParameterizedTest
     @MethodSource("buildDeniableRequest")
     public void getDenied(LoanRequest request) {
@@ -132,4 +114,39 @@ public class AppTest {
                      response.getResponse());
     }
 
+    @Test
+    public void shouldReturnApplicationUUID() {
+        request = buildDefaultRequest();
+        LoanApplication application = sut.createRequest(request);
+        UUID requestId = application.getRequestId();
+        assertEquals(application.getResponse(),
+                     sut.getApplicationStatus(requestId));
+    }
+
+
+
+    @Test
+    public void shouldReturnExceptionWhenNoRequestStored() {
+        assertThrows(NullPointerException.class,
+                     () -> sut.getApplicationStatus(UUID.randomUUID()));
+    }
+
+    @Test
+    public void shouldReturnExceptionWhenNoRequestFound() {
+        request = buildDefaultRequest();
+        sut.createRequest(request);
+        assertThrows(NullPointerException.class,
+                     () -> sut.getApplicationStatus(UUID.randomUUID()));
+    }
+
+    @Test
+    public void shouldSetStatusToDesired() {
+        request = buildDefaultRequest();
+        LoanApplication application = sut.createRequest(request);
+        UUID requestId = application.getRequestId();
+        Assumptions.assumeTrue(sut.getApplicationStatus(requestId).equals(ResponseType.APPROVED));
+        assertEquals(ResponseType.DENIED,
+                     sut.setApplicationStatus(requestId,
+                                              ResponseType.DENIED));
+    }
 }
