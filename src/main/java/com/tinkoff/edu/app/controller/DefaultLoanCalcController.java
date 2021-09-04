@@ -22,7 +22,7 @@ public class DefaultLoanCalcController implements LoanCalcController {
             throw new IllegalArgumentException();
         if (request.getFio().length() < 10 || request.getFio().length() > 100)
             throw new FIOLengthException("Name length shorter then 10 or longer then 100!");
-        if (!request.getFio().matches("[A-я\\-\\s]{10,100}"))
+        if (!request.getFio().matches("[A-я\\-\\s]*"))
             throw new IllegalCharacterException("FIO may contain only alphabetical and dash");
         if (request.getAmount() > 999999.99 || request.getAmount() < 0.01)
             throw new IllegalRequestAmountException("Amount should be between 0.01 and 999999.99");

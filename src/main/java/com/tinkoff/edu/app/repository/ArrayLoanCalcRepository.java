@@ -12,7 +12,7 @@ public class ArrayLoanCalcRepository implements LoanCalcRepository {
     private int position;
 
     @Override
-    public UUID save(LoanRequest request, ResponseType response) throws ArrayIndexOutOfBoundsException{
+    public UUID save(LoanRequest request, ResponseType response) throws ArrayIndexOutOfBoundsException {
         UUID requestId = UUID.randomUUID();
         LoanCalcRow row = new LoanCalcRow(requestId,
                                           response);
@@ -26,7 +26,6 @@ public class ArrayLoanCalcRepository implements LoanCalcRepository {
                 return arrayRepository[i];
             }
         }
-        throw new NoSuchElementException();
+        throw new NoSuchElementException("No element with given ID");
     }
 }
-//UUID responseType

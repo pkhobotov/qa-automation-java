@@ -47,7 +47,7 @@ public class DefaultLoanCalcService implements LoanCalcService {
     }
 
     @Override
-    public ResponseType setApplicationStatus(UUID requestId, ResponseType response) throws  NoSuchElementException{
+    public ResponseType setApplicationStatus(UUID requestId, ResponseType response) {
         LoanCalcRow row = repo.getRowById(requestId);
         row.setStatus(response);
         return row.getStatus();
