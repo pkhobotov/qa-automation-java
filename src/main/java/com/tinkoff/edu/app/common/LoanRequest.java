@@ -1,4 +1,4 @@
-package com.tinkoff.edu.app;
+package com.tinkoff.edu.app.common;
 
 /**
  * Class, Type -> objects, instances
@@ -8,6 +8,10 @@ public class LoanRequest {
     private final int amount;
     private final LoanType type;
     private final String fio;
+
+    public String getFio() {
+        return fio;
+    }
 
     public LoanRequest(int months, int amount, LoanType type, String fio) {
         this.months = months;

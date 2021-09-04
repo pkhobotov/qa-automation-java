@@ -1,7 +1,21 @@
 package com.tinkoff.edu;
 
-import com.tinkoff.edu.app.*;
-import org.junit.jupiter.api.*;
+import com.tinkoff.edu.app.common.LoanApplication;
+import com.tinkoff.edu.app.common.LoanRequest;
+import com.tinkoff.edu.app.common.LoanType;
+import com.tinkoff.edu.app.common.ResponseType;
+import com.tinkoff.edu.app.controller.DefaultLoanCalcController;
+import com.tinkoff.edu.app.controller.LoanCalcController;
+import com.tinkoff.edu.app.exceptions.GetApplicationException;
+import com.tinkoff.edu.app.exceptions.RequestException;
+import com.tinkoff.edu.app.repository.ArrayLoanCalcRepository;
+import com.tinkoff.edu.app.repository.LoanCalcRepository;
+import com.tinkoff.edu.app.service.IpNotFriendlyLoanCalcService;
+import com.tinkoff.edu.app.service.LoanCalcService;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -12,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AppTest {
-    private static final String defaultFio = "Петров Гриша Алексеевич";
+    private static final String defaultFio = "AWOWAOELADLADS";
     private LoanCalcController sut;
     private LoanRequest request;
 
@@ -99,7 +113,7 @@ public class AppTest {
     @DisplayName("request should be APPROVED")
     @ParameterizedTest
     @MethodSource("buildApprovalRequest")
-    public void getApproved(LoanRequest request) {
+    public void getApproved(LoanRequest request) throws RequestException {
         LoanApplication response = sut.createRequest(request);
         assertEquals(ResponseType.APPROVED,
                      response.getResponse());
@@ -108,14 +122,14 @@ public class AppTest {
     @DisplayName("request should be DENIED")
     @ParameterizedTest
     @MethodSource("buildDeniableRequest")
-    public void getDenied(LoanRequest request) {
+    public void getDenied(LoanRequest request) throws RequestException {
         LoanApplication response = sut.createRequest(request);
         assertEquals(ResponseType.DENIED,
                      response.getResponse());
     }
 
     @Test
-    public void shouldReturnApplicationUUID() {
+    public void shouldReturnApplicationUUID() throws RequestException {
         request = buildDefaultRequest();
         LoanApplication application = sut.createRequest(request);
         UUID requestId = application.getRequestId();
@@ -123,24 +137,22 @@ public class AppTest {
                      sut.getApplicationStatus(requestId));
     }
 
-
-
     @Test
     public void shouldReturnExceptionWhenNoRequestStored() {
-        assertThrows(NullPointerException.class,
+        assertThrows(GetApplicationException.class,
                      () -> sut.getApplicationStatus(UUID.randomUUID()));
     }
 
     @Test
-    public void shouldReturnExceptionWhenNoRequestFound() {
+    public void shouldReturnExceptionWhenNoRequestFound() throws RequestException {
         request = buildDefaultRequest();
         sut.createRequest(request);
-        assertThrows(NullPointerException.class,
+        assertThrows(GetApplicationException.class,
                      () -> sut.getApplicationStatus(UUID.randomUUID()));
     }
 
     @Test
-    public void shouldSetStatusToDesired() {
+    public void shouldSetStatusToDesired() throws RequestException {
         request = buildDefaultRequest();
         LoanApplication application = sut.createRequest(request);
         UUID requestId = application.getRequestId();

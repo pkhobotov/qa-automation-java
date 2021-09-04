@@ -1,5 +1,12 @@
-package com.tinkoff.edu.app;
+package com.tinkoff.edu.app.service;
 
+import com.tinkoff.edu.app.common.LoanApplication;
+import com.tinkoff.edu.app.common.LoanCalcRow;
+import com.tinkoff.edu.app.common.LoanRequest;
+import com.tinkoff.edu.app.common.ResponseType;
+import com.tinkoff.edu.app.repository.LoanCalcRepository;
+
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 public class DefaultLoanCalcService implements LoanCalcService {
@@ -34,13 +41,13 @@ public class DefaultLoanCalcService implements LoanCalcService {
     }
 
     @Override
-    public ResponseType getApplicationStatus(UUID requestId) {
+    public ResponseType getApplicationStatus(UUID requestId) throws NoSuchElementException {
         LoanCalcRow row = repo.getRowById(requestId);
         return row.getStatus();
     }
 
     @Override
-    public ResponseType setApplicationStatus(UUID requestId, ResponseType response) {
+    public ResponseType setApplicationStatus(UUID requestId, ResponseType response) throws  NoSuchElementException{
         LoanCalcRow row = repo.getRowById(requestId);
         row.setStatus(response);
         return row.getStatus();
