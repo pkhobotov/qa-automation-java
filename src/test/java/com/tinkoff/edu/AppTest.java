@@ -149,12 +149,14 @@ public class AppTest {
         assertThrows(GetApplicationException.class,
                      () -> sut.getApplicationStatus(UUID.randomUUID()));
     }
+
     @Test
     public void shouldReturnExceptionWhenNoRequestFoundToSetStatus() throws RequestException {
         request = buildDefaultRequest();
         sut.createRequest(request);
         assertThrows(GetApplicationException.class,
-                     () -> sut.setApplicationStatus(UUID.randomUUID(), ResponseType.DENIED));
+                     () -> sut.setApplicationStatus(UUID.randomUUID(),
+                                                    ResponseType.DENIED));
     }
 
     @Test
@@ -193,7 +195,7 @@ public class AppTest {
         request = new LoanRequest(4,
                                   8000,
                                   LoanType.PERSON,
-                                  "Крткм".repeat(3)+"/");
+                                  "Крткм".repeat(3) + "/");
         assertThrows(IllegalCharacterException.class,
                      () -> sut.createRequest(request));
     }
