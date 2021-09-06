@@ -11,7 +11,7 @@ import java.util.UUID;
 public interface LoanCalcController {
     LoanApplication createRequest(LoanRequest request) throws RequestException;
 
-    ResponseType getApplicationStatus(UUID requestId) throws GetApplicationException;
+    ResponseType getApplicationStatus(UUID requestId);
 
-    ResponseType setApplicationStatus(UUID requestId, ResponseType response) throws GetApplicationException;
+    ResponseType setApplicationStatus(UUID requestId, ResponseType response);
 }

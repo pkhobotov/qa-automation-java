@@ -6,7 +6,6 @@ import com.tinkoff.edu.app.common.ResponseType;
 import com.tinkoff.edu.app.exceptions.*;
 import com.tinkoff.edu.app.service.LoanCalcService;
 
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 public class DefaultLoanCalcController implements LoanCalcController {
@@ -20,9 +19,11 @@ public class DefaultLoanCalcController implements LoanCalcController {
     public LoanApplication createRequest(LoanRequest request) throws RequestException {
         if (request == null || request.getAmount() <= 0 || request.getMonths() <= 0)
             throw new IllegalArgumentException();
-        if (request.getFio().length() < 10 || request.getFio().length() > 100)
+        if (request.getType() == null) throw new LoanTypeException("No LoanType received");
+        String fio = request.getFio();
+        if (fio == null || fio.length() < 10 || fio.length() > 100)
             throw new FIOLengthException("Name length shorter then 10 or longer then 100!");
-        if (!request.getFio().matches("[A-я\\-\\s]*"))
+        if (!request.getFio().matches("[A-Za-zА-я\\s-]*"))
             throw new IllegalCharacterException("FIO may contain only alphabetical and dash");
         if (request.getAmount() > 999999.99 || request.getAmount() < 0.01)
             throw new IllegalRequestAmountException("Amount should be between 0.01 and 999999.99");
@@ -30,23 +31,13 @@ public class DefaultLoanCalcController implements LoanCalcController {
     }
 
     @Override
-    public ResponseType getApplicationStatus(UUID requestId) throws GetApplicationException {
-        try {
-            return loanCalcService.getApplicationStatus(requestId);
-        } catch (NoSuchElementException e) {
-            throw new GetApplicationException("No application for this ID",
-                                              e);
-        }
+    public ResponseType getApplicationStatus(UUID requestId) {
+        return loanCalcService.getApplicationStatus(requestId);
     }
 
     @Override
-    public ResponseType setApplicationStatus(UUID requestId, ResponseType response) throws GetApplicationException {
-        try {
-            return loanCalcService.setApplicationStatus(requestId,
-                                                        response);
-        } catch (NoSuchElementException e) {
-            throw new GetApplicationException("No application for this ID",
-                                              e);
-        }
+    public ResponseType setApplicationStatus(UUID requestId, ResponseType response) {
+        return loanCalcService.setApplicationStatus(requestId,
+                                                    response);
     }
 }

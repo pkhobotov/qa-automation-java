@@ -12,11 +12,15 @@ public class ArrayLoanCalcRepository implements LoanCalcRepository {
     private int position;
 
     @Override
-    public UUID save(LoanRequest request, ResponseType response) throws ArrayIndexOutOfBoundsException {
+    public UUID save(LoanRequest request, ResponseType response){
         UUID requestId = UUID.randomUUID();
         LoanCalcRow row = new LoanCalcRow(requestId,
                                           response);
-        arrayRepository[position++] = row;
+        try {
+            arrayRepository[position++] = row;
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new ArrayIndexOutOfBoundsException("Repository is Full");
+        }
         return requestId;
     }
 

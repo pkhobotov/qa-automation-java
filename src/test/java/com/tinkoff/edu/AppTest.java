@@ -128,6 +128,16 @@ public class AppTest {
     }
 
     @Test
+    public void shouldReturnExceptionWhenLoanTypeIsNull() {
+        request = new LoanRequest(4,
+                                  8000,
+                                  null,
+                                  "Крткм".repeat(5));
+        assertThrows(LoanTypeException.class,
+                     () -> sut.createRequest(request));
+    }
+
+    @Test
     public void shouldReturnApplicationUUID() throws RequestException {
         request = buildDefaultRequest();
         LoanApplication application = sut.createRequest(request);
@@ -186,6 +196,16 @@ public class AppTest {
                                   8000,
                                   LoanType.PERSON,
                                   "Крткм".repeat(21));
+        assertThrows(FIOLengthException.class,
+                     () -> sut.createRequest(request));
+    }
+
+    @Test
+    public void getErrorOnNullFIO() {
+        request = new LoanRequest(4,
+                                  8000,
+                                  LoanType.PERSON,
+                                  null);
         assertThrows(FIOLengthException.class,
                      () -> sut.createRequest(request));
     }

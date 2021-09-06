@@ -4,6 +4,7 @@ import com.tinkoff.edu.app.common.LoanApplication;
 import com.tinkoff.edu.app.common.LoanCalcRow;
 import com.tinkoff.edu.app.common.LoanRequest;
 import com.tinkoff.edu.app.common.ResponseType;
+import com.tinkoff.edu.app.exceptions.GetApplicationException;
 import com.tinkoff.edu.app.repository.LoanCalcRepository;
 
 import java.util.NoSuchElementException;
@@ -41,14 +42,26 @@ public class DefaultLoanCalcService implements LoanCalcService {
     }
 
     @Override
-    public ResponseType getApplicationStatus(UUID requestId) throws NoSuchElementException {
-        LoanCalcRow row = repo.getRowById(requestId);
+    public ResponseType getApplicationStatus(UUID requestId){
+        LoanCalcRow row;
+        try {
+            row = repo.getRowById(requestId);
+        } catch (NoSuchElementException e) {
+            throw new GetApplicationException("No application for this ID",
+                                              e);
+        }
         return row.getStatus();
     }
 
     @Override
-    public ResponseType setApplicationStatus(UUID requestId, ResponseType response) {
-        LoanCalcRow row = repo.getRowById(requestId);
+    public ResponseType setApplicationStatus(UUID requestId, ResponseType response){
+        LoanCalcRow row;
+        try {
+            row = repo.getRowById(requestId);
+        } catch (NoSuchElementException e) {
+            throw new GetApplicationException("No application for this ID",
+                                              e);
+        }
         row.setStatus(response);
         return row.getStatus();
     }

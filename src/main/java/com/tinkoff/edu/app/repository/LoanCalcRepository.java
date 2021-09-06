@@ -7,7 +7,7 @@ import com.tinkoff.edu.app.common.ResponseType;
 import java.util.UUID;
 
 public interface LoanCalcRepository {
-    UUID save(LoanRequest request, ResponseType response) throws ArrayIndexOutOfBoundsException;
+    UUID save(LoanRequest request, ResponseType response);
 
     LoanCalcRow getRowById(UUID requestId);
 }
