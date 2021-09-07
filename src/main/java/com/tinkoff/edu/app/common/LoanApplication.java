@@ -3,22 +3,32 @@ package com.tinkoff.edu.app.common;
 import java.util.UUID;
 
 public class LoanApplication {
-    private final UUID requestId;
     private final LoanRequest request;
-    private final ResponseType response;
+    private UUID requestId;
+    private ResponseType response;
 
-    public LoanApplication(UUID requestId, LoanRequest request, ResponseType response) {
-        this.requestId = requestId;
+    public LoanApplication(LoanRequest request) {
         this.request = request;
-        this.response = response;
+    }
+
+    public LoanRequest getRequest() {
+        return request;
     }
 
     public ResponseType getResponse() {
         return response;
     }
 
+    public void setResponse(ResponseType response) {
+        this.response = response;
+    }
+
     public UUID getRequestId() {
         return requestId;
+    }
+
+    public void setRequestId(UUID requestId) {
+        this.requestId = requestId;
     }
 
     public String toString() {

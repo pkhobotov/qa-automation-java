@@ -1,6 +1,5 @@
 package com.tinkoff.edu.app.controller;
 
-import com.tinkoff.edu.app.common.LoanApplication;
 import com.tinkoff.edu.app.common.LoanRequest;
 import com.tinkoff.edu.app.common.ResponseType;
 import com.tinkoff.edu.app.exceptions.*;
@@ -16,7 +15,7 @@ public class DefaultLoanCalcController implements LoanCalcController {
     }
 
     @Override
-    public LoanApplication createRequest(LoanRequest request) throws RequestException {
+    public UUID createRequest(LoanRequest request) throws RequestException {
         if (request == null || request.getAmount() <= 0 || request.getMonths() <= 0)
             throw new IllegalArgumentException();
         if (request.getType() == null) throw new LoanTypeException("No LoanType received");

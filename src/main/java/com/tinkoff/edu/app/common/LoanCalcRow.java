@@ -4,22 +4,18 @@ import java.util.UUID;
 
 public class LoanCalcRow {
     private final UUID requestId;
-    private ResponseType status;
+    private final LoanApplication application;
 
-    public LoanCalcRow(UUID requestId, ResponseType status) {
+    public LoanCalcRow(UUID requestId, LoanApplication application) {
         this.requestId = requestId;
-        this.status = status;
+        this.application = application;
     }
 
     public UUID getRequestId() {
         return requestId;
     }
 
-    public ResponseType getStatus() {
-        return status;
-    }
-
-    public void setStatus(ResponseType status) {
-        this.status = status;
+    public LoanApplication getItem() {
+        return application;
     }
 }

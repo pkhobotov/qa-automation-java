@@ -1,13 +1,11 @@
 package com.tinkoff.edu.app.repository;
 
-import com.tinkoff.edu.app.common.LoanCalcRow;
-import com.tinkoff.edu.app.common.LoanRequest;
-import com.tinkoff.edu.app.common.ResponseType;
+import com.tinkoff.edu.app.common.LoanApplication;
 
 import java.util.UUID;
 
 public interface LoanCalcRepository {
-    UUID save(LoanRequest request, ResponseType response);
+    UUID save(LoanApplication application);
 
-    LoanCalcRow getRowById(UUID requestId);
+    LoanApplication getItemById(UUID requestId);
 }

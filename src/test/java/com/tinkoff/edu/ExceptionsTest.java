@@ -1,13 +1,13 @@
 package com.tinkoff.edu;
 
 import com.tinkoff.edu.app.common.LoanRequest;
-import com.tinkoff.edu.app.common.LoanType;
+import com.tinkoff.edu.app.common.Requester;
 import com.tinkoff.edu.app.common.ResponseType;
 import com.tinkoff.edu.app.controller.DefaultLoanCalcController;
 import com.tinkoff.edu.app.controller.LoanCalcController;
 import com.tinkoff.edu.app.exceptions.*;
-import com.tinkoff.edu.app.repository.ArrayLoanCalcRepository;
 import com.tinkoff.edu.app.repository.LoanCalcRepository;
+import com.tinkoff.edu.app.repository.MapLoanRepository;
 import com.tinkoff.edu.app.service.IpNotFriendlyLoanCalcService;
 import com.tinkoff.edu.app.service.LoanCalcService;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,14 +25,14 @@ public class ExceptionsTest {
     private LoanRequest buildDefaultRequest() {
         return new LoanRequest(2,
                                8000,
-                               LoanType.OOO,
+                               Requester.OOO,
                                defaultFio);
     }
 
     @BeforeEach
     public void init() {
         //region Fixture | Arrange | Given
-        LoanCalcRepository repo = new ArrayLoanCalcRepository();
+        LoanCalcRepository repo = new MapLoanRepository();
         LoanCalcService calcService = new IpNotFriendlyLoanCalcService(repo);
         sut = new DefaultLoanCalcController(calcService);
         //endregion
@@ -75,7 +75,7 @@ public class ExceptionsTest {
     public void getErrorOnShortFIO() {
         request = new LoanRequest(4,
                                   8000,
-                                  LoanType.PERSON,
+                                  Requester.PERSON,
                                   "Крткм");
         assertThrows(FIOLengthException.class,
                      () -> sut.createRequest(request));
@@ -85,7 +85,7 @@ public class ExceptionsTest {
     public void getErrorOnLongFIO() {
         request = new LoanRequest(4,
                                   8000,
-                                  LoanType.PERSON,
+                                  Requester.PERSON,
                                   "Крткм".repeat(21));
         assertThrows(FIOLengthException.class,
                      () -> sut.createRequest(request));
@@ -95,7 +95,7 @@ public class ExceptionsTest {
     public void getErrorOnNullFIO() {
         request = new LoanRequest(4,
                                   8000,
-                                  LoanType.PERSON,
+                                  Requester.PERSON,
                                   null);
         assertThrows(FIOLengthException.class,
                      () -> sut.createRequest(request));
@@ -105,7 +105,7 @@ public class ExceptionsTest {
     public void getErrorOnInvalidCharContainingFIO() {
         request = new LoanRequest(4,
                                   8000,
-                                  LoanType.PERSON,
+                                  Requester.PERSON,
                                   "Крткм".repeat(3) + "/");
         assertThrows(IllegalCharacterException.class,
                      () -> sut.createRequest(request));
@@ -115,7 +115,7 @@ public class ExceptionsTest {
     public void getErrorOnSmallerAmount() {
         request = new LoanRequest(4,
                                   0.001,
-                                  LoanType.PERSON,
+                                  Requester.PERSON,
                                   defaultFio);
         assertThrows(IllegalRequestAmountException.class,
                      () -> sut.createRequest(request));
@@ -125,7 +125,7 @@ public class ExceptionsTest {
     public void getErrorOnBiggerAmount() {
         request = new LoanRequest(4,
                                   1000000000,
-                                  LoanType.PERSON,
+                                  Requester.PERSON,
                                   defaultFio);
         assertThrows(IllegalRequestAmountException.class,
                      () -> sut.createRequest(request));

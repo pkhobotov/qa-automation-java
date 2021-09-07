@@ -6,10 +6,10 @@ package com.tinkoff.edu.app.common;
 public class LoanRequest {
     private final int months;
     private final double amount;
-    private final LoanType type;
+    private final Requester type;
     private final String fio;
 
-    public LoanRequest(int months, double amount, LoanType type, String fio) {
+    public LoanRequest(int months, double amount, Requester type, String fio) {
         this.months = months;
         this.amount = amount;
         this.type = type;
@@ -20,7 +20,7 @@ public class LoanRequest {
         return fio;
     }
 
-    public LoanType getType() {
+    public Requester getType() {
         return type;
     }
 
