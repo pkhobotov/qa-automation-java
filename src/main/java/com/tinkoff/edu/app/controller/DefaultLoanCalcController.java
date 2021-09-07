@@ -1,10 +1,13 @@
 package com.tinkoff.edu.app.controller;
 
+import com.tinkoff.edu.app.common.LoanApplication;
 import com.tinkoff.edu.app.common.LoanRequest;
+import com.tinkoff.edu.app.common.Requester;
 import com.tinkoff.edu.app.common.ResponseType;
 import com.tinkoff.edu.app.exceptions.*;
 import com.tinkoff.edu.app.service.LoanCalcService;
 
+import java.util.Set;
 import java.util.UUID;
 
 public class DefaultLoanCalcController implements LoanCalcController {
@@ -38,5 +41,15 @@ public class DefaultLoanCalcController implements LoanCalcController {
     public ResponseType setApplicationStatus(UUID requestId, ResponseType response) {
         return loanCalcService.setApplicationStatus(requestId,
                                                     response);
+    }
+
+    @Override
+    public double sumLoanAmountByRequesterType(Requester requester) {
+        return loanCalcService.sumLoanAmountByRequesterType(requester);
+    }
+
+    @Override
+    public Set <LoanApplication> getApplicationsByRequesterType(Requester requester) {
+        return loanCalcService.getApplicationsByRequesterType(requester);
     }
 }

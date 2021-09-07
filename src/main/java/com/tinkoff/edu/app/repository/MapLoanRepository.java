@@ -2,6 +2,7 @@ package com.tinkoff.edu.app.repository;
 
 import com.tinkoff.edu.app.common.LoanApplication;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -21,5 +22,10 @@ public class MapLoanRepository implements LoanCalcRepository {
     @Override
     public LoanApplication getItemById(UUID requestId) {
         return this.mapRepository.get(requestId);
+    }
+
+    @Override
+    public Map <UUID, LoanApplication> getApplications() {
+        return Collections.unmodifiableMap(mapRepository);
     }
 }

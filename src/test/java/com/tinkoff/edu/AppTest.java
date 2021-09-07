@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -143,5 +144,33 @@ public class AppTest {
         assertEquals(ResponseType.DENIED,
                      sut.setApplicationStatus(requestId,
                                               ResponseType.DENIED));
+    }
+
+    @Test
+    public void shouldSumAllSameTypeRequestsAmounts() throws RequestException {
+        double[] amounts = {8000.1, 20.66, 20.34};
+        Requester testRequester = Requester.OOO;
+        sut.createRequest(new LoanRequest(2,
+                                          amounts[0],
+                                          testRequester,
+                                          defaultFio));
+        sut.createRequest(new LoanRequest(5,
+                                          amounts[1],
+                                          testRequester,
+                                          defaultFio));
+        sut.createRequest(new LoanRequest(3,
+                                          amounts[2],
+                                          testRequester,
+                                          defaultFio));
+        sut.createRequest(new LoanRequest(2,
+                                          7654,
+                                          Requester.IP,
+                                          defaultFio));
+        sut.createRequest(new LoanRequest(2,
+                                          556,
+                                          Requester.PERSON,
+                                          defaultFio));
+        assertEquals(Arrays.stream(amounts).sum(),
+                     sut.sumLoanAmountByRequesterType(testRequester));
     }
 }

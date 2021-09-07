@@ -1,8 +1,11 @@
 package com.tinkoff.edu.app.service;
 
+import com.tinkoff.edu.app.common.LoanApplication;
 import com.tinkoff.edu.app.common.LoanRequest;
+import com.tinkoff.edu.app.common.Requester;
 import com.tinkoff.edu.app.common.ResponseType;
 
+import java.util.Set;
 import java.util.UUID;
 
 public interface LoanCalcService {
@@ -13,4 +16,8 @@ public interface LoanCalcService {
     ResponseType getApplicationStatus(UUID requestId);
 
     ResponseType setApplicationStatus(UUID requestId, ResponseType response);
+
+    Set <LoanApplication> getApplicationsByRequesterType(Requester requester);
+
+    double sumLoanAmountByRequesterType(Requester requester);
 }
