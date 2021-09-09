@@ -10,16 +10,12 @@ import com.tinkoff.edu.app.repository.LoanCalcRepository;
 import com.tinkoff.edu.app.repository.MapLoanRepository;
 import com.tinkoff.edu.app.service.IpNotFriendlyLoanCalcService;
 import com.tinkoff.edu.app.service.LoanCalcService;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ExceptionsTest {
     private static final String defaultFio = "Петров Гриша Сергеевич";
@@ -135,11 +131,4 @@ public class ExceptionsTest {
                 () -> sut.createRequest(request));
     }
 
-    @Test
-    public void hamcresttest() {
-        List<Integer> intArray = Arrays.asList(1,
-                2);
-        assertTrue(intArray.size() < 10);
-//        MatcherAssert.assertThat(intArray, );
-    }
 }

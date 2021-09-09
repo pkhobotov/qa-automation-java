@@ -33,7 +33,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>5.1.0</version>
+            <version>5.7.2</version>
             <scope>test</scope>
         </dependency>
         <!--         https://mvnrepository.com/artifact/org.hamcrest/hamcrest-all-->
@@ -69,6 +69,12 @@
                 <version>2.22.1</version>
             </plugin>
             <plugin>
+                <configuration>
+                    <excludes>
+                        <exclude>**/LoanApplication.class</exclude>
+                        <exclude>**/LoanRequest.class</exclude>
+                    </excludes>
+                </configuration>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.7</version>

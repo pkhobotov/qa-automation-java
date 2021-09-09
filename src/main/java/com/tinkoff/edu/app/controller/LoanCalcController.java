@@ -4,13 +4,12 @@ import com.tinkoff.edu.app.common.LoanApplication;
 import com.tinkoff.edu.app.common.LoanRequest;
 import com.tinkoff.edu.app.common.Requester;
 import com.tinkoff.edu.app.common.ResponseType;
-import com.tinkoff.edu.app.exceptions.RequestException;
 
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 public interface LoanCalcController {
-    UUID createRequest(LoanRequest request) throws RequestException;
+    UUID createRequest(LoanRequest request);
 
     ResponseType getApplicationStatus(UUID requestId);
 
@@ -18,5 +17,5 @@ public interface LoanCalcController {
 
     double sumLoanAmountByRequesterType(Requester requester);
 
-    Set<LoanApplication> getApplicationsByRequesterType(Requester requester);
+    List<LoanApplication> getApplicationsByRequesterType(Requester requester);
 }

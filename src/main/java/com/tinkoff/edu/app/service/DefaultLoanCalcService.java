@@ -7,8 +7,8 @@ import com.tinkoff.edu.app.common.ResponseType;
 import com.tinkoff.edu.app.exceptions.GetApplicationException;
 import com.tinkoff.edu.app.repository.LoanCalcRepository;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -64,20 +64,20 @@ public class DefaultLoanCalcService implements LoanCalcService {
     }
 
     @Override
-    public Set<LoanApplication> getApplicationsByRequesterType(Requester requester) {
+    public List<LoanApplication> getApplicationsByRequesterType(Requester requester) {
         Map<UUID, LoanApplication> applications = repo.getApplications();
         return applications.values().stream()
-                       .filter((application) -> application.getRequest().getType().equals(requester))
-                       .collect(Collectors.toSet());
+                .filter((application) -> application.getRequest().getType().equals(requester))
+                .collect(Collectors.toList());
     }
 
     @Override
     public double sumLoanAmountByRequesterType(Requester requester) {
-        Set<LoanApplication> applications = getApplicationsByRequesterType(requester);
+        List<LoanApplication> applications = getApplicationsByRequesterType(requester);
         return applications
-                       .stream()
-                       .map(a -> a.getRequest().getAmount())
-                       .reduce(0.0,
-                               Double::sum);
+                .stream()
+                .map(a -> a.getRequest().getAmount())
+                .reduce(0.0,
+                        Double::sum);
     }
 }

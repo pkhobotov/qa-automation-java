@@ -1,5 +1,7 @@
 package com.tinkoff.edu.app.common;
 
+import java.util.Objects;
+
 /**
  * Class, Type -> objects, instances
  */
@@ -14,6 +16,19 @@ public class LoanRequest {
         this.amount = amount;
         this.type = type;
         this.fio = fio;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LoanRequest that = (LoanRequest) o;
+        return months == that.months && Double.compare(that.amount, amount) == 0 && type == that.type && fio.equals(that.fio);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(months, amount, type, fio);
     }
 
     public String getFio() {

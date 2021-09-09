@@ -10,6 +10,8 @@ import com.tinkoff.edu.app.repository.LoanCalcRepository;
 import com.tinkoff.edu.app.repository.MapLoanRepository;
 import com.tinkoff.edu.app.service.IpNotFriendlyLoanCalcService;
 import com.tinkoff.edu.app.service.LoanCalcService;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +20,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Arrays;
+import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class AppTest {
     private static final String defaultFio = "Петров Гриша Сергеевич";
     private LoanCalcController sut;
-    private LoanRequest request;
+    private LoanCalcRepository repo;
 
     public static Stream<LoanRequest> buildApprovalRequest() {
         return Stream.of(
@@ -73,7 +78,7 @@ public class AppTest {
     @BeforeEach
     public void init() {
         //region Fixture | Arrange | Given
-        LoanCalcRepository repo = new MapLoanRepository();
+        repo = new MapLoanRepository();
         LoanCalcService calcService = new IpNotFriendlyLoanCalcService(repo);
         sut = new DefaultLoanCalcController(calcService);
         //endregion
@@ -82,7 +87,7 @@ public class AppTest {
     @Test
     @DisplayName("Throws error on null request")
     public void shouldGetErrorWhenApplyNullRequest() {
-        request = null;
+        LoanRequest request = null;
         assertThrows(IllegalArgumentException.class,
                 () -> sut.createRequest(request));
     }
@@ -90,7 +95,7 @@ public class AppTest {
     @Test
     @DisplayName("Throws error on negative amount")
     public void shouldGetErrorWhenApplyZeroOrNegativeAmountRequest() {
-        request = new LoanRequest(2000,
+        var request = new LoanRequest(2000,
                 -2,
                 Requester.OOO,
                 defaultFio);
@@ -101,7 +106,7 @@ public class AppTest {
     @Test
     @DisplayName("Throws error on negative months")
     public void shouldGetErrorWhenApplyZeroOrNegativeMonthsRequest() {
-        request = new LoanRequest(-3,
+        var request = new LoanRequest(-3,
                 2000,
                 Requester.OOO,
                 defaultFio);
@@ -129,7 +134,7 @@ public class AppTest {
 
     @Test
     public void shouldReturnApplicationStatusOnUUID() throws RequestException {
-        request = buildDefaultRequest();
+        var request = buildDefaultRequest();
         sut.createRequest(request);
         UUID requestId = sut.createRequest(request);
         assertEquals(ResponseType.APPROVED,
@@ -138,7 +143,7 @@ public class AppTest {
 
     @Test
     public void shouldSetStatusToDesired() throws RequestException {
-        request = buildDefaultRequest();
+        var request = buildDefaultRequest();
         UUID requestId = sut.createRequest(request);
         Assumptions.assumeTrue(sut.getApplicationStatus(requestId).equals(ResponseType.APPROVED));
         assertEquals(ResponseType.DENIED,
@@ -172,5 +177,21 @@ public class AppTest {
                 defaultFio));
         assertEquals(Arrays.stream(amounts).sum(),
                 sut.sumLoanAmountByRequesterType(testRequester));
+    }
+
+    @Test
+    public void shouldReturnAllSameRequesterTypeApplications() throws RequestException {
+        var requester = Requester.OOO;
+        IntStream.rangeClosed(0, 8).forEach((i) -> sut.createRequest(new LoanRequest(
+                new Random().nextInt(12) + 1,
+                new Random().nextDouble() + 0.1 * 1000,
+                Requester.values()[i % Requester.values().length],
+                defaultFio)));
+        var expectedApps = repo.getApplications().values().stream()
+                .filter(app -> app.getRequest().getType().equals(requester))
+                .collect(Collectors.toList());
+        var actualApps = sut.getApplicationsByRequesterType(requester);
+
+        MatcherAssert.assertThat(actualApps, Matchers.equalTo(expectedApps));
     }
 }
