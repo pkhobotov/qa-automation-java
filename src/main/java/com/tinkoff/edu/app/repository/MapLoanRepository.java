@@ -8,14 +8,14 @@ import java.util.Map;
 import java.util.UUID;
 
 public class MapLoanRepository implements LoanCalcRepository {
-    private final Map <UUID, LoanApplication> mapRepository = new HashMap <>();
+    private final Map<UUID, LoanApplication> mapRepository = new HashMap<>();
 
     @Override
     public UUID save(LoanApplication application) {
         UUID requestId = UUID.randomUUID();
         application.setRequestId(requestId);
         this.mapRepository.put(requestId,
-                               application);
+                application);
         return requestId;
     }
 
@@ -25,7 +25,7 @@ public class MapLoanRepository implements LoanCalcRepository {
     }
 
     @Override
-    public Map <UUID, LoanApplication> getApplications() {
+    public Map<UUID, LoanApplication> getApplications() {
         return Collections.unmodifiableMap(mapRepository);
     }
 }

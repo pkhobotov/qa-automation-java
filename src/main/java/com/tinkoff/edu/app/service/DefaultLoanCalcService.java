@@ -46,7 +46,7 @@ public class DefaultLoanCalcService implements LoanCalcService {
             return repo.getItemById(requestId).getResponse();
         } catch (NullPointerException e) {
             throw new GetApplicationException("No application for this ID",
-                                              e);
+                    e);
         }
     }
 
@@ -58,26 +58,26 @@ public class DefaultLoanCalcService implements LoanCalcService {
             application.setResponse(response);
         } catch (NullPointerException e) {
             throw new GetApplicationException("No application for this ID",
-                                              e);
+                    e);
         }
         return application.getResponse();
     }
 
     @Override
-    public Set <LoanApplication> getApplicationsByRequesterType(Requester requester) {
-        Map <UUID, LoanApplication> applications = repo.getApplications();
+    public Set<LoanApplication> getApplicationsByRequesterType(Requester requester) {
+        Map<UUID, LoanApplication> applications = repo.getApplications();
         return applications.values().stream()
-                .filter((application) -> application.getRequest().getType().equals(requester))
-                .collect(Collectors.toSet());
+                       .filter((application) -> application.getRequest().getType().equals(requester))
+                       .collect(Collectors.toSet());
     }
 
     @Override
     public double sumLoanAmountByRequesterType(Requester requester) {
-        Set <LoanApplication> applications = getApplicationsByRequesterType(requester);
+        Set<LoanApplication> applications = getApplicationsByRequesterType(requester);
         return applications
-                .stream()
-                .map(a -> a.getRequest().getAmount())
-                .reduce(0.0,
-                        Double::sum);
+                       .stream()
+                       .map(a -> a.getRequest().getAmount())
+                       .reduce(0.0,
+                               Double::sum);
     }
 }

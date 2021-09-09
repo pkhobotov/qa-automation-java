@@ -40,7 +40,7 @@ public class DefaultLoanCalcController implements LoanCalcController {
     @Override
     public ResponseType setApplicationStatus(UUID requestId, ResponseType response) {
         return loanCalcService.setApplicationStatus(requestId,
-                                                    response);
+                response);
     }
 
     @Override
@@ -49,7 +49,7 @@ public class DefaultLoanCalcController implements LoanCalcController {
     }
 
     @Override
-    public Set <LoanApplication> getApplicationsByRequesterType(Requester requester) {
+    public Set<LoanApplication> getApplicationsByRequesterType(Requester requester) {
         return loanCalcService.getApplicationsByRequesterType(requester);
     }
 }

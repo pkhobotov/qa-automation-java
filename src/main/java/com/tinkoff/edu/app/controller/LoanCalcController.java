@@ -18,5 +18,5 @@ public interface LoanCalcController {
 
     double sumLoanAmountByRequesterType(Requester requester);
 
-    Set <LoanApplication> getApplicationsByRequesterType(Requester requester);
+    Set<LoanApplication> getApplicationsByRequesterType(Requester requester);
 }

@@ -33,8 +33,8 @@ public class LoanApplication {
 
     public String toString() {
         return String.format("requestId %s : %s\nResult: %s",
-                             this.requestId,
-                             this.request,
-                             this.response);
+                this.requestId,
+                this.request,
+                this.response);
     }
 }

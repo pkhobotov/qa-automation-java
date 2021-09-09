@@ -10,5 +10,5 @@ public interface LoanCalcRepository {
 
     LoanApplication getItemById(UUID requestId);
 
-    Map <UUID, LoanApplication> getApplications();
+    Map<UUID, LoanApplication> getApplications();
 }

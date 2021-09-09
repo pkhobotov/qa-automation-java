@@ -17,7 +17,7 @@ public interface LoanCalcService {
 
     ResponseType setApplicationStatus(UUID requestId, ResponseType response);
 
-    Set <LoanApplication> getApplicationsByRequesterType(Requester requester);
+    Set<LoanApplication> getApplicationsByRequesterType(Requester requester);
 
     double sumLoanAmountByRequesterType(Requester requester);
 }
