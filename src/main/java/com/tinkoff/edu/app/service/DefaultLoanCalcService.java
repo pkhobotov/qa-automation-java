@@ -1,14 +1,16 @@
 package com.tinkoff.edu.app.service;
 
 import com.tinkoff.edu.app.common.LoanApplication;
-import com.tinkoff.edu.app.common.LoanCalcRow;
 import com.tinkoff.edu.app.common.LoanRequest;
+import com.tinkoff.edu.app.common.Requester;
 import com.tinkoff.edu.app.common.ResponseType;
 import com.tinkoff.edu.app.exceptions.GetApplicationException;
 import com.tinkoff.edu.app.repository.LoanCalcRepository;
 
-import java.util.NoSuchElementException;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class DefaultLoanCalcService implements LoanCalcService {
     protected LoanCalcRepository repo;
@@ -17,13 +19,10 @@ public class DefaultLoanCalcService implements LoanCalcService {
         this.repo = repo;
     }
 
-    public LoanApplication createRequest(LoanRequest request) {
-        ResponseType responseType = this.calculateLoanResponse(request);
-        UUID requestId = this.repo.save(request,
-                                        responseType);
-        return new LoanApplication(requestId,
-                                   request,
-                                   responseType);
+    public UUID createRequest(LoanRequest request) {
+        LoanApplication application = new LoanApplication(request);
+        application.setResponse(this.calculateLoanResponse(request));
+        return this.repo.save(application);
     }
 
     public ResponseType calculateLoanResponse(LoanRequest request) {
@@ -42,27 +41,43 @@ public class DefaultLoanCalcService implements LoanCalcService {
     }
 
     @Override
-    public ResponseType getApplicationStatus(UUID requestId){
-        LoanCalcRow row;
+    public ResponseType getApplicationStatus(UUID requestId) {
         try {
-            row = repo.getRowById(requestId);
-        } catch (NoSuchElementException e) {
+            return repo.getItemById(requestId).getResponse();
+        } catch (NullPointerException e) {
             throw new GetApplicationException("No application for this ID",
-                                              e);
+                    e);
         }
-        return row.getStatus();
     }
 
     @Override
-    public ResponseType setApplicationStatus(UUID requestId, ResponseType response){
-        LoanCalcRow row;
+    public ResponseType setApplicationStatus(UUID requestId, ResponseType response) {
+        LoanApplication application;
+        application = repo.getItemById(requestId);
         try {
-            row = repo.getRowById(requestId);
-        } catch (NoSuchElementException e) {
+            application.setResponse(response);
+        } catch (NullPointerException e) {
             throw new GetApplicationException("No application for this ID",
-                                              e);
+                    e);
         }
-        row.setStatus(response);
-        return row.getStatus();
+        return application.getResponse();
+    }
+
+    @Override
+    public List<LoanApplication> getApplicationsByRequesterType(Requester requester) {
+        Map<UUID, LoanApplication> applications = repo.getApplications();
+        return applications.values().stream()
+                .filter((application) -> application.getRequest().getType().equals(requester))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public double sumLoanAmountByRequesterType(Requester requester) {
+        List<LoanApplication> applications = getApplicationsByRequesterType(requester);
+        return applications
+                .stream()
+                .map(a -> a.getRequest().getAmount())
+                .reduce(0.0,
+                        Double::sum);
     }
 }

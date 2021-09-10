@@ -1,16 +1,17 @@
 package com.tinkoff.edu;
 
-import com.tinkoff.edu.app.common.LoanApplication;
 import com.tinkoff.edu.app.common.LoanRequest;
-import com.tinkoff.edu.app.common.LoanType;
+import com.tinkoff.edu.app.common.Requester;
 import com.tinkoff.edu.app.common.ResponseType;
 import com.tinkoff.edu.app.controller.DefaultLoanCalcController;
 import com.tinkoff.edu.app.controller.LoanCalcController;
-import com.tinkoff.edu.app.exceptions.*;
-import com.tinkoff.edu.app.repository.ArrayLoanCalcRepository;
+import com.tinkoff.edu.app.exceptions.RequestException;
 import com.tinkoff.edu.app.repository.LoanCalcRepository;
+import com.tinkoff.edu.app.repository.MapLoanRepository;
 import com.tinkoff.edu.app.service.IpNotFriendlyLoanCalcService;
 import com.tinkoff.edu.app.service.LoanCalcService;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +19,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.Arrays;
+import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,53 +32,53 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class AppTest {
     private static final String defaultFio = "Петров Гриша Сергеевич";
     private LoanCalcController sut;
-    private LoanRequest request;
+    private LoanCalcRepository repo;
 
-    public static Stream <LoanRequest> buildApprovalRequest() {
+    public static Stream<LoanRequest> buildApprovalRequest() {
         return Stream.of(
                 new LoanRequest(4,
-                                12000,
-                                LoanType.OOO,
-                                defaultFio),
+                        12000,
+                        Requester.OOO,
+                        defaultFio),
                 new LoanRequest(4,
-                                8000,
-                                LoanType.OOO,
-                                defaultFio)
+                        8000,
+                        Requester.OOO,
+                        defaultFio)
         );
     }
 
-    public static Stream <LoanRequest> buildDeniableRequest() {
+    public static Stream<LoanRequest> buildDeniableRequest() {
         return Stream.of(
                 new LoanRequest(14,
-                                12000,
-                                LoanType.OOO,
-                                defaultFio),
+                        12000,
+                        Requester.OOO,
+                        defaultFio),
                 new LoanRequest(16,
-                                8000,
-                                LoanType.PERSON,
-                                defaultFio),
+                        8000,
+                        Requester.PERSON,
+                        defaultFio),
                 new LoanRequest(4,
-                                20000,
-                                LoanType.PERSON,
-                                defaultFio),
+                        20000,
+                        Requester.PERSON,
+                        defaultFio),
                 new LoanRequest(10,
-                                1000,
-                                LoanType.IP,
-                                defaultFio)
+                        1000,
+                        Requester.IP,
+                        defaultFio)
         );
     }
 
     private LoanRequest buildDefaultRequest() {
         return new LoanRequest(2,
-                               8000,
-                               LoanType.OOO,
-                               defaultFio);
+                8000,
+                Requester.OOO,
+                defaultFio);
     }
 
     @BeforeEach
     public void init() {
         //region Fixture | Arrange | Given
-        LoanCalcRepository repo = new ArrayLoanCalcRepository();
+        repo = new MapLoanRepository();
         LoanCalcService calcService = new IpNotFriendlyLoanCalcService(repo);
         sut = new DefaultLoanCalcController(calcService);
         //endregion
@@ -82,161 +87,111 @@ public class AppTest {
     @Test
     @DisplayName("Throws error on null request")
     public void shouldGetErrorWhenApplyNullRequest() {
-        request = null;
+        LoanRequest request = null;
         assertThrows(IllegalArgumentException.class,
-                     () -> sut.createRequest(request));
+                () -> sut.createRequest(request));
     }
 
     @Test
     @DisplayName("Throws error on negative amount")
     public void shouldGetErrorWhenApplyZeroOrNegativeAmountRequest() {
-        request = new LoanRequest(2000,
-                                  -2,
-                                  LoanType.OOO,
-                                  defaultFio);
+        var request = new LoanRequest(2000,
+                -2,
+                Requester.OOO,
+                defaultFio);
         assertThrows(IllegalArgumentException.class,
-                     () -> sut.createRequest(request));
+                () -> sut.createRequest(request));
     }
 
     @Test
     @DisplayName("Throws error on negative months")
     public void shouldGetErrorWhenApplyZeroOrNegativeMonthsRequest() {
-        request = new LoanRequest(-3,
-                                  2000,
-                                  LoanType.OOO,
-                                  defaultFio);
+        var request = new LoanRequest(-3,
+                2000,
+                Requester.OOO,
+                defaultFio);
         assertThrows(IllegalArgumentException.class,
-                     () -> sut.createRequest(request));
+                () -> sut.createRequest(request));
     }
 
     @DisplayName("request should be APPROVED")
     @ParameterizedTest
     @MethodSource("buildApprovalRequest")
     public void getApproved(LoanRequest request) throws RequestException {
-        LoanApplication response = sut.createRequest(request);
+        UUID requestId = sut.createRequest(request);
         assertEquals(ResponseType.APPROVED,
-                     response.getResponse());
+                sut.getApplicationStatus(requestId));
     }
 
     @DisplayName("request should be DENIED")
     @ParameterizedTest
     @MethodSource("buildDeniableRequest")
     public void getDenied(LoanRequest request) throws RequestException {
-        LoanApplication response = sut.createRequest(request);
+        UUID requestId = sut.createRequest(request);
         assertEquals(ResponseType.DENIED,
-                     response.getResponse());
+                sut.getApplicationStatus(requestId));
     }
 
     @Test
-    public void shouldReturnExceptionWhenLoanTypeIsNull() {
-        request = new LoanRequest(4,
-                                  8000,
-                                  null,
-                                  "Крткм".repeat(5));
-        assertThrows(LoanTypeException.class,
-                     () -> sut.createRequest(request));
-    }
-
-    @Test
-    public void shouldReturnApplicationUUID() throws RequestException {
-        request = buildDefaultRequest();
-        LoanApplication application = sut.createRequest(request);
-        UUID requestId = application.getRequestId();
-        assertEquals(application.getResponse(),
-                     sut.getApplicationStatus(requestId));
-    }
-
-    @Test
-    public void shouldReturnExceptionWhenNoRequestStored() {
-        assertThrows(GetApplicationException.class,
-                     () -> sut.getApplicationStatus(UUID.randomUUID()));
-    }
-
-    @Test
-    public void shouldReturnExceptionWhenNoRequestFound() throws RequestException {
-        request = buildDefaultRequest();
+    public void shouldReturnApplicationStatusOnUUID() throws RequestException {
+        var request = buildDefaultRequest();
         sut.createRequest(request);
-        assertThrows(GetApplicationException.class,
-                     () -> sut.getApplicationStatus(UUID.randomUUID()));
-    }
-
-    @Test
-    public void shouldReturnExceptionWhenNoRequestFoundToSetStatus() throws RequestException {
-        request = buildDefaultRequest();
-        sut.createRequest(request);
-        assertThrows(GetApplicationException.class,
-                     () -> sut.setApplicationStatus(UUID.randomUUID(),
-                                                    ResponseType.DENIED));
+        UUID requestId = sut.createRequest(request);
+        assertEquals(ResponseType.APPROVED,
+                sut.getApplicationStatus(requestId));
     }
 
     @Test
     public void shouldSetStatusToDesired() throws RequestException {
-        request = buildDefaultRequest();
-        LoanApplication application = sut.createRequest(request);
-        UUID requestId = application.getRequestId();
+        var request = buildDefaultRequest();
+        UUID requestId = sut.createRequest(request);
         Assumptions.assumeTrue(sut.getApplicationStatus(requestId).equals(ResponseType.APPROVED));
         assertEquals(ResponseType.DENIED,
-                     sut.setApplicationStatus(requestId,
-                                              ResponseType.DENIED));
+                sut.setApplicationStatus(requestId,
+                        ResponseType.DENIED));
     }
 
     @Test
-    public void getErrorOnShortFIO() {
-        request = new LoanRequest(4,
-                                  8000,
-                                  LoanType.PERSON,
-                                  "Крткм");
-        assertThrows(FIOLengthException.class,
-                     () -> sut.createRequest(request));
+    public void shouldSumAllSameTypeRequestsAmounts() throws RequestException {
+        double[] amounts = {8000.1, 20.66, 20.34};
+        Requester testRequester = Requester.OOO;
+        sut.createRequest(new LoanRequest(2,
+                amounts[0],
+                testRequester,
+                defaultFio));
+        sut.createRequest(new LoanRequest(5,
+                amounts[1],
+                testRequester,
+                defaultFio));
+        sut.createRequest(new LoanRequest(3,
+                amounts[2],
+                testRequester,
+                defaultFio));
+        sut.createRequest(new LoanRequest(2,
+                7654,
+                Requester.IP,
+                defaultFio));
+        sut.createRequest(new LoanRequest(2,
+                556,
+                Requester.PERSON,
+                defaultFio));
+        assertEquals(Arrays.stream(amounts).sum(),
+                sut.sumLoanAmountByRequesterType(testRequester));
     }
 
     @Test
-    public void getErrorOnLongFIO() {
-        request = new LoanRequest(4,
-                                  8000,
-                                  LoanType.PERSON,
-                                  "Крткм".repeat(21));
-        assertThrows(FIOLengthException.class,
-                     () -> sut.createRequest(request));
-    }
+    public void shouldReturnAllSameRequesterTypeApplications() throws RequestException {
+        var requester = Requester.OOO;
+        IntStream.rangeClosed(0, 8).forEach((i) -> sut.createRequest(new LoanRequest(
+                new Random().nextInt(12) + 1,
+                new Random().nextDouble() + 0.1 * 1000,
+                Requester.values()[i % Requester.values().length],
+                defaultFio)));
+        var expectedApps = repo.getApplications().values().stream()
+                .filter(app -> app.getRequest().getType().equals(requester))
+                .collect(Collectors.toList());
+        var actualApps = sut.getApplicationsByRequesterType(requester);
 
-    @Test
-    public void getErrorOnNullFIO() {
-        request = new LoanRequest(4,
-                                  8000,
-                                  LoanType.PERSON,
-                                  null);
-        assertThrows(FIOLengthException.class,
-                     () -> sut.createRequest(request));
-    }
-
-    @Test
-    public void getErrorOnInvalidCharContainingFIO() {
-        request = new LoanRequest(4,
-                                  8000,
-                                  LoanType.PERSON,
-                                  "Крткм".repeat(3) + "/");
-        assertThrows(IllegalCharacterException.class,
-                     () -> sut.createRequest(request));
-    }
-
-    @Test
-    public void getErrorOnSmallerAmount() {
-        request = new LoanRequest(4,
-                                  0.001,
-                                  LoanType.PERSON,
-                                  defaultFio);
-        assertThrows(IllegalRequestAmountException.class,
-                     () -> sut.createRequest(request));
-    }
-
-    @Test
-    public void getErrorOnBiggerAmount() {
-        request = new LoanRequest(4,
-                                  1000000000,
-                                  LoanType.PERSON,
-                                  defaultFio);
-        assertThrows(IllegalRequestAmountException.class,
-                     () -> sut.createRequest(request));
+        MatcherAssert.assertThat(actualApps, Matchers.equalTo(expectedApps));
     }
 }

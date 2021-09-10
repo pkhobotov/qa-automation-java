@@ -2,10 +2,15 @@ package com.tinkoff.edu.app.controller;
 
 import com.tinkoff.edu.app.common.LoanApplication;
 import com.tinkoff.edu.app.common.LoanRequest;
+import com.tinkoff.edu.app.common.Requester;
 import com.tinkoff.edu.app.common.ResponseType;
-import com.tinkoff.edu.app.exceptions.*;
+import com.tinkoff.edu.app.exceptions.FIOLengthException;
+import com.tinkoff.edu.app.exceptions.IllegalCharacterException;
+import com.tinkoff.edu.app.exceptions.IllegalRequestAmountException;
+import com.tinkoff.edu.app.exceptions.LoanTypeException;
 import com.tinkoff.edu.app.service.LoanCalcService;
 
+import java.util.List;
 import java.util.UUID;
 
 public class DefaultLoanCalcController implements LoanCalcController {
@@ -16,7 +21,7 @@ public class DefaultLoanCalcController implements LoanCalcController {
     }
 
     @Override
-    public LoanApplication createRequest(LoanRequest request) throws RequestException {
+    public UUID createRequest(LoanRequest request) {
         if (request == null || request.getAmount() <= 0 || request.getMonths() <= 0)
             throw new IllegalArgumentException();
         if (request.getType() == null) throw new LoanTypeException("No LoanType received");
@@ -38,6 +43,16 @@ public class DefaultLoanCalcController implements LoanCalcController {
     @Override
     public ResponseType setApplicationStatus(UUID requestId, ResponseType response) {
         return loanCalcService.setApplicationStatus(requestId,
-                                                    response);
+                response);
+    }
+
+    @Override
+    public double sumLoanAmountByRequesterType(Requester requester) {
+        return loanCalcService.sumLoanAmountByRequesterType(requester);
+    }
+
+    @Override
+    public List<LoanApplication> getApplicationsByRequesterType(Requester requester) {
+        return loanCalcService.getApplicationsByRequesterType(requester);
     }
 }
