@@ -1,7 +1,9 @@
 package com.tinkoff.edu.app.common;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class LoanApplication {
     private final LoanRequest request;
@@ -46,9 +48,7 @@ public class LoanApplication {
     }
 
     public String toString() {
-        return String.format("requestId %s : %s\nResult: %s",
-                this.requestId,
-                this.request,
-                this.response);
+        var values = List.of(this.requestId.toString(), this.request.toString());
+        return String.join(", ", values);
     }
 }
