@@ -22,7 +22,7 @@ public class DefaultLoanCalcService implements LoanCalcService {
     public UUID createRequest(LoanRequest request) {
         LoanApplication application = new LoanApplication(request);
         application.setResponse(this.calculateLoanResponse(request));
-        return this.repo.save(application);
+        return this.repo.saveNew(application);
     }
 
     public ResponseType calculateLoanResponse(LoanRequest request) {
@@ -52,15 +52,13 @@ public class DefaultLoanCalcService implements LoanCalcService {
 
     @Override
     public ResponseType setApplicationStatus(UUID requestId, ResponseType response) {
-        LoanApplication application;
-        application = repo.getItemById(requestId);
         try {
-            application.setResponse(response);
+            repo.setAppResponse(requestId, response);
         } catch (NullPointerException e) {
             throw new GetApplicationException("No application for this ID",
                     e);
         }
-        return application.getResponse();
+        return repo.getItemById(requestId).getResponse();
     }
 
     @Override
