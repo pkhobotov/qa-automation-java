@@ -10,6 +10,7 @@ import com.tinkoff.edu.app.repository.LoanCalcRepository;
 import com.tinkoff.edu.app.repository.MapLoanRepository;
 import com.tinkoff.edu.app.service.IpNotFriendlyLoanCalcService;
 import com.tinkoff.edu.app.service.LoanCalcService;
+import com.tinkoff.edu.common.RequestBuilder;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assumptions;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static com.tinkoff.edu.app.common.Requester.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -36,42 +38,24 @@ public class AppTest {
 
     public static Stream<LoanRequest> buildApprovalRequest() {
         return Stream.of(
-                new LoanRequest(4,
-                        12000,
-                        Requester.OOO,
-                        defaultFio),
-                new LoanRequest(4,
-                        8000,
-                        Requester.OOO,
-                        defaultFio)
+                new RequestBuilder().months(4).amount(12000).requester(OOO).build(),
+                new RequestBuilder().months(4).amount(8000).requester(OOO).build()
         );
     }
 
     public static Stream<LoanRequest> buildDeniableRequest() {
         return Stream.of(
-                new LoanRequest(14,
-                        12000,
-                        Requester.OOO,
-                        defaultFio),
-                new LoanRequest(16,
-                        8000,
-                        Requester.PERSON,
-                        defaultFio),
-                new LoanRequest(4,
-                        20000,
-                        Requester.PERSON,
-                        defaultFio),
-                new LoanRequest(10,
-                        1000,
-                        Requester.IP,
-                        defaultFio)
+                new RequestBuilder().months(14).amount(1200).requester(OOO).build(),
+                new RequestBuilder().months(16).amount(8000).requester(PERSON).build(),
+                new RequestBuilder().months(4).amount(20000).requester(PERSON).build(),
+                new RequestBuilder().months(10).amount(1000).requester(IP).build()
         );
     }
 
     private LoanRequest buildDefaultRequest() {
         return new LoanRequest(2,
                 8000,
-                Requester.OOO,
+                OOO,
                 defaultFio);
     }
 
@@ -97,7 +81,7 @@ public class AppTest {
     public void shouldGetErrorWhenApplyZeroOrNegativeAmountRequest() {
         var request = new LoanRequest(2000,
                 -2,
-                Requester.OOO,
+                OOO,
                 defaultFio);
         assertThrows(IllegalArgumentException.class,
                 () -> sut.createRequest(request));
@@ -108,7 +92,7 @@ public class AppTest {
     public void shouldGetErrorWhenApplyZeroOrNegativeMonthsRequest() {
         var request = new LoanRequest(-3,
                 2000,
-                Requester.OOO,
+                OOO,
                 defaultFio);
         assertThrows(IllegalArgumentException.class,
                 () -> sut.createRequest(request));
@@ -154,41 +138,28 @@ public class AppTest {
     @Test
     public void shouldSumAllSameTypeRequestsAmounts() throws RequestException {
         double[] amounts = {8000.1, 20.66, 20.34};
-        Requester testRequester = Requester.OOO;
-        sut.createRequest(new LoanRequest(2,
-                amounts[0],
-                testRequester,
-                defaultFio));
-        sut.createRequest(new LoanRequest(5,
-                amounts[1],
-                testRequester,
-                defaultFio));
-        sut.createRequest(new LoanRequest(3,
-                amounts[2],
-                testRequester,
-                defaultFio));
-        sut.createRequest(new LoanRequest(2,
-                7654,
-                Requester.IP,
-                defaultFio));
-        sut.createRequest(new LoanRequest(2,
-                556,
-                Requester.PERSON,
-                defaultFio));
+        Requester testRequester = OOO;
+        Stream.of(
+                new RequestBuilder().amount(amounts[0]).requester(testRequester).build(),
+                new RequestBuilder().amount(amounts[1]).requester(testRequester).build(),
+                new RequestBuilder().amount(amounts[2]).requester(testRequester).build(),
+                new RequestBuilder().amount(7654).requester(IP).build(),
+                new RequestBuilder().amount(556).requester(PERSON).build()
+        ).forEach(sut::createRequest);
         assertEquals(Arrays.stream(amounts).sum(),
                 sut.sumLoanAmountByRequesterType(testRequester));
     }
 
     @Test
     public void shouldReturnAllSameRequesterTypeApplications() throws RequestException {
-        var requester = Requester.OOO;
+        var requester = OOO;
         IntStream.rangeClosed(0, 8).forEach((i) -> sut.createRequest(new LoanRequest(
                 new Random().nextInt(12) + 1,
                 new Random().nextDouble() + 0.1 * 1000,
                 Requester.values()[i % Requester.values().length],
                 defaultFio)));
         var expectedApps = repo.getApplications().values().stream()
-                .filter(app -> app.getRequest().getType().equals(requester))
+                .filter(app -> app.getRequestType().equals(requester))
                 .collect(Collectors.toList());
         var actualApps = sut.getApplicationsByRequesterType(requester);
 

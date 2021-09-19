@@ -22,6 +22,11 @@ public class DefaultLoanCalcController implements LoanCalcController {
 
     @Override
     public UUID createRequest(LoanRequest request) {
+        validate(request);
+        return loanCalcService.createRequest(request);
+    }
+
+    private void validate(LoanRequest request) {
         if (request == null || request.getAmount() <= 0 || request.getMonths() <= 0)
             throw new IllegalArgumentException();
         if (request.getType() == null) throw new LoanTypeException("No LoanType received");
@@ -32,7 +37,6 @@ public class DefaultLoanCalcController implements LoanCalcController {
             throw new IllegalCharacterException("FIO may contain only alphabetical and dash");
         if (request.getAmount() > 999999.99 || request.getAmount() < 0.01)
             throw new IllegalRequestAmountException("Amount should be between 0.01 and 999999.99");
-        return loanCalcService.createRequest(request);
     }
 
     @Override

@@ -1,8 +1,8 @@
 package com.tinkoff.edu.app.common;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Class, Type -> objects, instances
@@ -50,12 +50,12 @@ public class LoanRequest {
     }
 
     public String toString() {
-        var values = List.of(
-                this.type,
-                this.amount,
-                this.months,
-                this.fio
-        );
-        return values.stream().map(Objects::toString).collect(Collectors.joining(", "));
+        return Stream.of(
+                        this.type,
+                        this.amount,
+                        this.months,
+                        this.fio
+                ).map(Objects::toString)
+                .collect(Collectors.joining(", "));
     }
 }

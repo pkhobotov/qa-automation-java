@@ -1,4 +1,4 @@
-package com.tinkoff.edu;
+package com.tinkoff.edu.common;
 
 import com.tinkoff.edu.app.common.LoanRequest;
 import com.tinkoff.edu.app.common.Requester;
@@ -9,9 +9,6 @@ public class RequestBuilder {
     private int months = 8;
     private Requester type = Requester.PERSON;
     private String fio = "Иванов Иван Иванович";
-    public static RequestBuilder RequestBuilder = new RequestBuilder();
-
-
 
     public LoanRequest build() {
         return new LoanRequest(this.months, this.amount, this.type, this.fio);
