@@ -6,33 +6,50 @@ import com.tinkoff.edu.app.common.ResponseType;
 import com.tinkoff.edu.app.controller.DefaultLoanCalcController;
 import com.tinkoff.edu.app.controller.LoanCalcController;
 import com.tinkoff.edu.app.exceptions.*;
+import com.tinkoff.edu.app.repository.FileLoanRepository;
 import com.tinkoff.edu.app.repository.LoanCalcRepository;
-import com.tinkoff.edu.app.repository.MapLoanRepository;
 import com.tinkoff.edu.app.service.IpNotFriendlyLoanCalcService;
 import com.tinkoff.edu.app.service.LoanCalcService;
+import com.tinkoff.edu.common.RequestBuilder;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
 
+import static com.tinkoff.edu.app.common.Requester.OOO;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ExceptionsTest {
     private static final String defaultFio = "Петров Гриша Сергеевич";
     private LoanCalcController sut;
     private LoanRequest request;
+    private Path path = Path.of("src", "main", "resources", "LoanRepository.csv");
+
 
     private LoanRequest buildDefaultRequest() {
         return new LoanRequest(2,
                 8000,
-                Requester.OOO,
+                OOO,
                 defaultFio);
+    }
+
+    @AfterEach
+    public void deleteFile() throws IOException {
+        Files.deleteIfExists(path);
     }
 
     @BeforeEach
     public void init() {
         //region Fixture | Arrange | Given
-        LoanCalcRepository repo = new MapLoanRepository();
+        LoanCalcRepository repo = new FileLoanRepository(path);
         LoanCalcService calcService = new IpNotFriendlyLoanCalcService(repo);
         sut = new DefaultLoanCalcController(calcService);
         //endregion
@@ -72,36 +89,6 @@ public class ExceptionsTest {
     }
 
     @Test
-    public void getErrorOnShortFIO() {
-        request = new LoanRequest(4,
-                8000,
-                Requester.PERSON,
-                "Крткм");
-        assertThrows(FIOLengthException.class,
-                () -> sut.createRequest(request));
-    }
-
-    @Test
-    public void getErrorOnLongFIO() {
-        request = new LoanRequest(4,
-                8000,
-                Requester.PERSON,
-                "Крткм".repeat(21));
-        assertThrows(FIOLengthException.class,
-                () -> sut.createRequest(request));
-    }
-
-    @Test
-    public void getErrorOnNullFIO() {
-        request = new LoanRequest(4,
-                8000,
-                Requester.PERSON,
-                null);
-        assertThrows(FIOLengthException.class,
-                () -> sut.createRequest(request));
-    }
-
-    @Test
     public void getErrorOnInvalidCharContainingFIO() {
         request = new LoanRequest(4,
                 8000,
@@ -111,24 +98,37 @@ public class ExceptionsTest {
                 () -> sut.createRequest(request));
     }
 
-    @Test
-    public void getErrorOnSmallerAmount() {
-        request = new LoanRequest(4,
-                0.001,
-                Requester.PERSON,
-                defaultFio);
-        assertThrows(IllegalRequestAmountException.class,
-                () -> sut.createRequest(request));
+    @NullSource
+    @ParameterizedTest
+    @ValueSource(strings = {"asefaeofawoefowaijefwagaeroajepwokrrwqwkpowakerkaoiwjreoiaejtoiejfefaййвйцвйцвйцваукруерукрукфукфцуфцуацlcma",
+            "Крткм"})
+    public void getFIOLengthException(String fio) {
+        assertThrows(FIOLengthException.class,
+                () -> sut.createRequest(new RequestBuilder().fio(fio).build()));
     }
 
-    @Test
-    public void getErrorOnBiggerAmount() {
-        request = new LoanRequest(4,
-                1000000000,
-                Requester.PERSON,
-                defaultFio);
+    @ParameterizedTest
+    @ValueSource(doubles = {0.0001, 1000000000})
+    public void getErrorOnBiggerAmount(double amount) {
         assertThrows(IllegalRequestAmountException.class,
-                () -> sut.createRequest(request));
+                () -> sut.createRequest(new RequestBuilder().amount(amount).build()));
     }
 
+    @Nested
+    public class IOExceptions {
+        @BeforeEach
+        public void deleteFile() throws IOException {
+            Files.deleteIfExists(path);
+        }
+
+        @Test
+        public void exceptionOnWritingWithNoFile() {
+            assertThrows(RuntimeException.class, () -> sut.createRequest(new RequestBuilder().build()));
+        }
+        @Test
+        public void exceptionOnReadingWithNoFile() {
+            assertThrows(RuntimeException.class, () -> sut.getApplicationsByRequesterType(OOO));
+        }
+
+    }
 }
